@@ -27,18 +27,24 @@ void VM::run()
 	std::cout << "Running" << std::endl;
 	if (!mReady)
 		return;
+	std::cout << "Still running" << std::endl;
 	std::ifstream fin(mOpts->GetExe().c_str());
 	if(!fin) {
 		mReady = false;
 		return;
 	}
+	std::cout << "Executable loaded" << std::endl;
 
 	//populate header
 	fin.read((char*)&mHeader, sizeof(RNPE_Header));
 
+	std::cout << "Header read in" << std::endl;
+
 	//ensure sizes all match up
 	if (mHeader.text_size + mHeader.data_size + sizeof(RNPE_Header) != mHeader.size) {
 		mReady = false;
+		fin.close();
+		std::cout << "Header sizes don't match up" << std::endl;
 		return;
 	}
 
@@ -46,12 +52,16 @@ void VM::run()
 	mData = new char[mHeader.data_size];
 	mText = new char[mHeader.text_size];
 
+	std::cout << "Created mData and mText" << std::endl;
+
 	//load in data and text
 	fin.seekg(mHeader.data_pos);
 	fin.read(mData, mHeader.data_size);
 	int read_count = fin.gcount();
 	if( read_count != mHeader.data_size ) {
 		mReady = false;
+		std::cout << "Invalid read size: data" << std::endl;
+		fin.close();
 		return;
 	}
 	//if( mHeader.text_pos < mHeader.data_pos 
@@ -62,6 +72,8 @@ void VM::run()
 	std::cout << "Characters in text: " << read_count << std::endl;
 	if( read_count != mHeader.text_size ) {
 		mReady = false;
+		std::cout << "Invalid read size: text" << std::endl;
+		fin.close();
 		return;
 	}
 
@@ -121,6 +133,7 @@ Opcode VM::ReadOpcode()
 	case 0x0C: //and
 	case 0x0D: //or
 	case 0x0E: //xor
+	case 0x10: //loop
 		tmp.arg1type = TYPE_Address;
 		load_arg(tmp.arg1);
 		tmp.arg2type = TYPE_None;
@@ -135,9 +148,10 @@ Opcode VM::ReadOpcode()
 
 int VM::ExecuteOpcode(const Opcode &op)
 {
+	int ret = 0;
 	switch(op.Opcode)
 	{
-	case 0x01: 
+	case 0x01: //mov
 		switch(op.arg1)
 		{
 		case 0:
@@ -155,9 +169,15 @@ int VM::ExecuteOpcode(const Opcode &op)
 		}
 		break;
 	case 0xFF:
-		int ret = Syscall(op.arg1);
+		ret = Syscall(op.arg1);
 		if(ret)
 			return ret;
+		break;
+
+	case 0x10: //loop
+		ecx--;
+		if (ecx != 0)
+			eip = op.arg1;
 		break;
 	}
 
