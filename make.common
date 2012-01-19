@@ -1,0 +1,4 @@
+CC= gcc
+CFLAGS= -Wall -c -m32
+LFLAGS= -Wall -lstdc++ -lc -m32
+DEBUG= -g
