@@ -19,6 +19,9 @@ do
 	if [ "$(uname -p)" == 'x86_64' ]
 	then
 		echo "\$(MFLAG32)" >> $f.d
+	elif [ "$(uname -p)" == 'armv71' ]
+	then
+		echo "\$(MFLAGARM)" >> $f.d
 	else
 		echo "" >> $f.d
 	fi

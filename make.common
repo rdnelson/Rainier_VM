@@ -3,3 +3,4 @@ CFLAGS= -Wall -c
 LFLAGS= -Wall -lstdc++ -lc
 DEBUG= -g
 MFLAG32= -m32
+MFLAGARM= 
