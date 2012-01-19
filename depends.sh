@@ -15,5 +15,11 @@ do
 		echo -n "$i " >> $f.d
 	done
 	echo >> $f.d
-	echo "	\$(CC) \$(DEBUG) \$(CFLAGS) -o $OBJFILE $FILE" >> $f.d
+	echo -n "	\$(CC) \$(DEBUG) \$(CFLAGS) -o $OBJFILE $FILE" >> $f.d
+	if [ "$(uname -p)" == 'x86_64' ]
+	then
+		echo "\$(MFLAG32)" >> $f.d
+	else
+		echo "" >> $f.d
+	fi
 done
