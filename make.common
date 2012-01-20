@@ -4,3 +4,6 @@ LFLAGS= -Wall -lstdc++ -lc
 DEBUG= -g
 MFLAG32= -m32
 MFLAGARM= 
+MKDIR= mkdir -p
+BINDIR=bin
+MV=mv

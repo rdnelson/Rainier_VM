@@ -11,6 +11,8 @@ do
 	#echo "\$(warning OBJS: \$(OBJS))" >> makefile
 	echo $( echo $DIR | tail -c +3 ): "\$(OBJS)" >> makefile 
 	echo "	\$(CC) \$(DEBUG) \$(LFLAGS) -o \$@ \$^" >> makefile
+	echo "	\$(MKDIR) \$(BINDIR)" >> makefile
+	echo "	\$(MV) \$@ \$(BINDIR)/\$@" >> makefile
 	echo >> makefile
 	echo "all: $( echo $DIR | tail -c +3 )" >> makefile
 	cd ..
