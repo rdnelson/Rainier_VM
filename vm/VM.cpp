@@ -57,7 +57,7 @@ void VM::run()
 	//load in data and text
 	fin.seekg(mHeader.data_pos);
 	fin.read(mData, mHeader.data_size);
-	int read_count = fin.gcount();
+	unsigned int read_count = fin.gcount();
 	if( read_count != mHeader.data_size ) {
 		mReady = false;
 		std::cout << "Invalid read size: data" << std::endl;
@@ -89,11 +89,12 @@ void VM::Execute()
 	if( mHeader.entry_pos > mHeader.text_size )
 		return;
 
-	eip = mHeader.entry_pos;
+	EIP = mHeader.entry_pos;
 	Opcode op;
 	int retVal;
 	do
 	{
+		std::cout << "Reading opcode" << std::endl;
 		op = ReadOpcode();
 		retVal = ExecuteOpcode(op);
 	} while( !retVal );
@@ -103,8 +104,10 @@ void VM::Execute()
 Opcode VM::ReadOpcode()
 {
 	Opcode tmp;
-	tmp.Opcode = mText[eip];
-	eip++;
+	int v = EIP;
+	tmp.Opcode = mText[v];
+	EIP++;
+	std::cout << "Opcode:" << (int)tmp.Opcode << std::endl;
 
 	switch( tmp.Opcode )
 	{
@@ -115,8 +118,10 @@ Opcode VM::ReadOpcode()
 	case 0x01: //mov add -> reg
 	case 0x0B: //test
 		tmp.arg1type = TYPE_Register;
-		tmp.arg1 = (unsigned int)mText[eip];
-		eip++;
+		//tmp.arg1 = (unsigned int)mText[eip];
+		//eip++;
+		load_argn(tmp.arg1, 1);
+
 		tmp.arg2type = TYPE_Address;
 		//memcpy((char*)&tmp.arg2, &mText[eip], ADDR_SIZE);
 		load_arg(tmp.arg2);
@@ -149,23 +154,38 @@ Opcode VM::ReadOpcode()
 int VM::ExecuteOpcode(const Opcode &op)
 {
 	int ret = 0;
+	std::cout << "Executing opcode: " << (int) op.Opcode << std::endl;
 	switch(op.Opcode)
 	{
 	case 0x01: //mov
-		switch(op.arg1)
+		if (op.arg1 < NUM_REGISTERS) {
+			registers[op.arg1] = op.arg2;
+		} else {
+			std::cout << "Invalid Register" << std::endl;
+			return -1;
+		}
+		break;
+	case 0x0B: //test reg <> addr
 		{
-		case 0:
-			eax = op.arg2;
-			break;
-		case 1:
-			ebx = op.arg2;
-			break;
-		case 2:
-			ecx = op.arg2;
-			break;
-		case 3:
-			edx = op.arg2;
-			break;
+			unsigned int val1, val2;
+			switch(op.arg1type)
+			{
+			case TYPE_Register:
+				if(op.arg1 < NUM_REGISTERS) {
+					val1 = registers[op.arg1];
+				} else {
+					return -1;
+				}
+				break;
+			case TYPE_Address:
+				val1 = mData[op.arg1];
+				break;
+			case TYPE_Constant:
+				val1 = op.arg1;
+				break;
+			}
+			GetOpcodeData(op.arg2type, op.arg2, val2);
+
 		}
 		break;
 	case 0xFF:
@@ -175,9 +195,9 @@ int VM::ExecuteOpcode(const Opcode &op)
 		break;
 
 	case 0x10: //loop
-		ecx--;
-		if (ecx != 0)
-			eip = op.arg1;
+		ECX--;
+		if (ECX != 0)
+			EIP = op.arg1;
 		break;
 	}
 
@@ -189,12 +209,37 @@ int VM::Syscall(const unsigned char code)
 	switch(code)
 	{
 	case 0x00: //exit
-		return edx;
+		return EDX;
 		break;
 	case 0x01: //printf
-		char * retStr = Utilities::LoadString(this, eax);
+		char * retStr = Utilities::LoadString(this, EAX);
 		printf("%s", retStr);
 		delete retStr;
+		break;
+	}
+	return 0;
+}
+
+int VM::GetOpcodeData(const unsigned int type, const unsigned int val, unsigned int &data)
+{
+	switch(type)
+	{
+	case TYPE_Register:
+		if(val < NUM_REGISTERS) {
+			data = registers[val];
+		} else {
+			return -1;
+		}
+		break;
+	case TYPE_Address:
+		if(val < mHeader.data_size) {
+			data = mData[val];
+		} else {
+			return -2;
+		}
+		break;
+	case TYPE_Constant:
+		data = val;
 		break;
 	}
 	return 0;
