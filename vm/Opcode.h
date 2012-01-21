@@ -3,7 +3,7 @@
 
 #define ADDR_SIZE sizeof(unsigned int)
 
-#define load_argn(arg, size) memcpy((char*)&arg, &mText[eip], size); eip += size;
+#define load_argn(arg, size) memcpy((char*)&arg, &mText[EIP], size); EIP += size;
 #define load_arg(arg) load_argn(arg, ADDR_SIZE)
 
 enum ArgTypes {
@@ -11,6 +11,7 @@ enum ArgTypes {
 	TYPE_Register,
 	TYPE_Address,
 	TYPE_Id,
+	TYPE_Constant,
 	NUM_TYPES
 };
 
