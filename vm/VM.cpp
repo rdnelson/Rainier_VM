@@ -111,41 +111,54 @@ Opcode VM::ReadOpcode()
 
 	switch( tmp.Opcode )
 	{
-	case 0x00: //nop
-	case 0x09: //pop
-	case 0x0F: //not
+	//no arguments
+	case NOP_OP: //nop
+	case NOT_OP: //not
 		break;
-	case 0x01: //mov add -> reg
-	case 0x0B: //test
+
+	// arg1 : register
+	// arg2 : constant
+	case MOV_OP: //mov add -> constant
+	case TEST_OP: //test
 		tmp.arg1type = TYPE_Register;
-		//tmp.arg1 = (unsigned int)mText[eip];
-		//eip++;
 		load_reg(tmp.arg1);
 
-		tmp.arg2type = TYPE_Address;
-		//memcpy((char*)&tmp.arg2, &mText[eip], ADDR_SIZE);
+		tmp.arg2type = TYPE_Constant;
 		load_arg(tmp.arg2);
-		//eip += ADDR_SIZE;
 		break;
-	case 0x02: //add (1 arg)
-	case 0x03: //sub (1 arg)
-	case 0x04: //mul (1 arg)
-	case 0x05: //div (1 arg)
-	case 0x06: //shr (1 arg)
-	case 0x07: //shl (1 arg)
-	case 0x08: //push (1 arg)
-	case 0x0A: //jmp
-	case 0x0C: //and
-	case 0x0D: //or
-	case 0x0E: //xor
-	case 0x10: //loop
-		tmp.arg1type = TYPE_Address;
-		load_arg(tmp.arg1);
+
+	// arg1 : register
+	case PUSH_OP: //push
+	case POP_OP: //pop
+		tmp.arg1type = TYPE_Register;
+		load_reg(tmp.arg1);
+
 		tmp.arg2type = TYPE_None;
 		break;
-	case 0xFF: //syscall
+
+	// arg1 : Address
+	case ADD_OP: //add (1 arg)
+	case SUB_OP: //sub (1 arg)
+	case MUL_OP: //mul (1 arg)
+	case DIV_OP: //div (1 arg)
+	case SHR_OP: //shr (1 arg)
+	case SHL_OP: //shl (1 arg)
+	case JMP_OP: //jmp
+	case AND_OP: //and
+	case OR_OP: //or
+	case XOR_OP: //xor
+	case LOOP_OP: //loop
+		tmp.arg1type = TYPE_Address;
+		load_arg(tmp.arg1);
+
+		tmp.arg2type = TYPE_None;
+		break;
+
+	// arg1 : constant
+	case SYSCALL_OP: //syscall
 		tmp.arg1type = TYPE_Id;
-		load_argn(tmp.arg1, 1);
+		load_id(tmp.arg1);
+
 		tmp.arg2type = TYPE_None;
 	}
 	return tmp;
@@ -157,7 +170,7 @@ int VM::ExecuteOpcode(const Opcode &op)
 	std::cout << "Executing opcode: " << (int) op.Opcode << std::endl;
 	switch(op.Opcode)
 	{
-	case 0x01: //mov
+	case MOV_OP: //mov
 		if (op.arg1 < NUM_REGISTERS) {
 			registers[op.arg1] = op.arg2;
 		} else {
@@ -165,7 +178,8 @@ int VM::ExecuteOpcode(const Opcode &op)
 			return -1;
 		}
 		break;
-	case 0x0B: //test reg <> addr
+	case PUSH_OP:
+	case TEST_OP: //test reg <> addr
 		{
 			unsigned int val1, val2;
 			switch(op.arg1type)
@@ -188,13 +202,13 @@ int VM::ExecuteOpcode(const Opcode &op)
 
 		}
 		break;
-	case 0xFF:
+	case SYSCALL_OP:
 		ret = Syscall(op.arg1);
 		if(ret)
 			return ret;
 		break;
 
-	case 0x10: //loop
+	case LOOP_OP: //loop
 		ECX--;
 		if (ECX != 0)
 			EIP = op.arg1;

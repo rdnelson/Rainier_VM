@@ -8,6 +8,7 @@
 #ifndef VM_H_
 #define VM_H_
 
+#include <stack>
 #include "Options.h"
 #include "Header.h"
 #include "Opcode.h"
@@ -58,6 +59,7 @@ private:
 	//unsigned int eax, ebx, ecx, edx, esx, esi, edi, eip, ebp, esp;
 	unsigned int registers[NUM_REGISTERS];
 	unsigned char flags;
+	std::stack<unsigned int> mStack;
 };
 
 #endif /* VM_H_ */
