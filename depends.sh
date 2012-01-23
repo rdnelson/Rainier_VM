@@ -15,10 +15,13 @@ do
 		echo -n "$i " >> $f.d
 	done
 	echo >> $f.d
-	echo -n "	\$(CC) \$(DEBUG) \$(CFLAGS) -o $OBJFILE $FILE" >> $f.d
-	if [ "$(uname -p)" == 'x86_64' ]
+	echo -n "	\$(CC) \$(DEBUG) \$(CFLAGS) -o $OBJFILE $FILE " >> $f.d
+	if [ "$(uname -p)" == 'i386' ]
 	then
 		echo "\$(MFLAG32)" >> $f.d
+	elif [ "$(uname -p)" == 'x86_64' ]
+	then
+		echo "\$(MFLAG64)" >> $f.d
 	elif [ "$(uname -p)" == 'armv71' ]
 	then
 		echo "\$(MFLAGARM)" >> $f.d

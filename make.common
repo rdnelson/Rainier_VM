@@ -1,8 +1,9 @@
-CC= gcc
-CFLAGS= -Wall -c
-LFLAGS= -Wall -lstdc++ -lc
-DEBUG= -g
-MFLAG32= -m32
+CC= g++
+CFLAGS=-Wall -c
+LFLAGS=-Wall -lstdc++ -lc
+DEBUG=-g
+MFLAG32=-m32
+MFLAG64=
 MFLAGARM= 
 MKDIR= mkdir -p
 BINDIR=bin
