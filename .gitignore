@@ -2,3 +2,5 @@
 *.o
 makefile
 */bin/*
+vm/vm
+compiler/compiler

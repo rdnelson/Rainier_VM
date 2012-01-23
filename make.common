@@ -8,3 +8,4 @@ MFLAGARM=
 MKDIR= mkdir -p
 BINDIR=bin
 MV=mv
+CP=cp
