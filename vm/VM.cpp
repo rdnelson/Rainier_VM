@@ -120,7 +120,7 @@ Opcode VM::ReadOpcode()
 		tmp.arg1type = TYPE_Register;
 		//tmp.arg1 = (unsigned int)mText[eip];
 		//eip++;
-		load_argn(tmp.arg1, 1);
+		load_reg(tmp.arg1);
 
 		tmp.arg2type = TYPE_Address;
 		//memcpy((char*)&tmp.arg2, &mText[eip], ADDR_SIZE);
@@ -161,7 +161,7 @@ int VM::ExecuteOpcode(const Opcode &op)
 		if (op.arg1 < NUM_REGISTERS) {
 			registers[op.arg1] = op.arg2;
 		} else {
-			std::cout << "Invalid Register" << std::endl;
+			std::cout << "Invalid Register: " << op.arg1 << std::endl;
 			return -1;
 		}
 		break;

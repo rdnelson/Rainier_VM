@@ -3,7 +3,8 @@
 
 #define ADDR_SIZE sizeof(unsigned int)
 
-#define load_argn(arg, size) memcpy((char*)&arg, &mText[EIP], size); EIP += size;
+#define load_reg(arg) arg = 0; arg = (unsigned int)mText[EIP]; EIP++
+#define load_argn(arg, size) memset(&arg, 0, sizeof(arg)); memcpy((char*)&arg, &mText[EIP], size); EIP += size
 #define load_arg(arg) load_argn(arg, ADDR_SIZE)
 
 enum ArgTypes {
