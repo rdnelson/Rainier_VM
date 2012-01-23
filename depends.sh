@@ -2,6 +2,10 @@ FILES=$( find . \( -path "*.cpp" -a ! -path "./.*" \)  -printf "%h/%f " )
 echo Generating dependency files for:
 for f in $FILES
 do
+	if [ $f -ot $f.d ]
+	then
+		continue
+	fi
 	OBJFILE=${f/.cpp/.o}
 	OBJFILE=${OBJFILE/.c/.o}
 	OBJFILE=$( echo $OBJFILE | sed -n 's|./[a-zA-Z0-9]*/||p' )
