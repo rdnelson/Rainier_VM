@@ -15,7 +15,7 @@
 VM::VM(Options *opts) : mOpts(opts) {
 	// TODO Auto-generated constructor stub
 	mReady = opts->IsValid();
-	std::cout << "VM created. mReady: " << mReady << std::endl;
+	std::cerr << "VM created. mReady: " << mReady << std::endl;
 }
 
 VM::~VM() {
@@ -24,27 +24,27 @@ VM::~VM() {
 
 void VM::run()
 {
-	std::cout << "Running" << std::endl;
+	std::cerr << "Running" << std::endl;
 	if (!mReady)
 		return;
-	std::cout << "Still running" << std::endl;
+	std::cerr << "Still running" << std::endl;
 	std::ifstream fin(mOpts->GetExe().c_str());
 	if(!fin) {
 		mReady = false;
 		return;
 	}
-	std::cout << "Executable loaded" << std::endl;
+	std::cerr << "Executable loaded" << std::endl;
 
 	//populate header
 	fin.read((char*)&mHeader, sizeof(RNPE_Header));
 
-	std::cout << "Header read in" << std::endl;
+	std::cerr << "Header read in" << std::endl;
 
 	//ensure sizes all match up
 	if (mHeader.text_size + mHeader.data_size + sizeof(RNPE_Header) != mHeader.size) {
 		mReady = false;
 		fin.close();
-		std::cout << "Header sizes don't match up" << std::endl;
+		std::cerr << "Header sizes don't match up" << std::endl;
 		return;
 	}
 
@@ -52,7 +52,7 @@ void VM::run()
 	mData = new char[mHeader.data_size];
 	mText = new char[mHeader.text_size];
 
-	std::cout << "Created mData and mText" << std::endl;
+	std::cerr << "Created mData and mText" << std::endl;
 
 	//load in data and text
 	fin.seekg(mHeader.data_pos);
@@ -60,7 +60,7 @@ void VM::run()
 	unsigned int read_count = fin.gcount();
 	if( read_count != mHeader.data_size ) {
 		mReady = false;
-		std::cout << "Invalid read size: data" << std::endl;
+		std::cerr << "Invalid read size: data" << std::endl;
 		fin.close();
 		return;
 	}
@@ -69,10 +69,10 @@ void VM::run()
 	fin.seekg(mHeader.text_pos);
 	fin.read(mText, mHeader.text_size);
 	read_count = fin.gcount();
-	std::cout << "Characters in text: " << read_count << std::endl;
+	std::cerr << "Characters in text: " << read_count << std::endl;
 	if( read_count != mHeader.text_size ) {
 		mReady = false;
-		std::cout << "Invalid read size: text" << std::endl;
+		std::cerr << "Invalid read size: text" << std::endl;
 		fin.close();
 		return;
 	}
@@ -85,7 +85,7 @@ void VM::run()
 
 void VM::Execute()
 {
-	std::cout << "Beginning execution" << std::endl;
+	std::cerr << "Beginning execution" << std::endl;
 	if( mHeader.entry_pos > mHeader.text_size )
 		return;
 
@@ -94,7 +94,7 @@ void VM::Execute()
 	int retVal;
 	do
 	{
-		std::cout << "Reading opcode" << std::endl;
+		std::cerr << "Reading opcode" << std::endl;
 		op = ReadOpcode();
 		retVal = ExecuteOpcode(op);
 	} while( !retVal );
@@ -107,7 +107,7 @@ Opcode VM::ReadOpcode()
 	int v = EIP;
 	tmp.Opcode = mText[v];
 	EIP++;
-	std::cout << "Opcode:" << (int)tmp.Opcode << std::endl;
+	std::cerr << "Opcode:" << (int)tmp.Opcode << std::endl;
 
 	switch( tmp.Opcode )
 	{
@@ -167,18 +167,25 @@ Opcode VM::ReadOpcode()
 int VM::ExecuteOpcode(const Opcode &op)
 {
 	int ret = 0;
-	std::cout << "Executing opcode: " << (int) op.Opcode << std::endl;
+	std::cerr << "Executing opcode: " << (int) op.Opcode << std::endl;
 	switch(op.Opcode)
 	{
 	case MOV_OP: //mov
 		if (op.arg1 < NUM_REGISTERS) {
 			registers[op.arg1] = op.arg2;
 		} else {
-			std::cout << "Invalid Register: " << op.arg1 << std::endl;
+			std::cerr << "Invalid Register: " << op.arg1 << std::endl;
 			return -1;
 		}
 		break;
 	case PUSH_OP:
+		if (op.arg1 < NUM_REGISTERS) {
+			mStack.push(registers[op.arg1]);
+		} else {
+			std::cerr << "Invalid Registers: " << op.arg1 << std::endl;
+			return -1;
+		}
+		break;
 	case TEST_OP: //test reg <> addr
 		{
 			unsigned int val1, val2;
