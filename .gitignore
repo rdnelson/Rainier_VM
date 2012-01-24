@@ -4,3 +4,8 @@ makefile
 */bin/*
 vm/vm
 compiler/compiler
+*.opensdf
+*.sdf
+*.sln
+*.suo
+*.vcx*
