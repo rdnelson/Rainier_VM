@@ -186,6 +186,15 @@ int VM::ExecuteOpcode(const Opcode &op)
 			return -1;
 		}
 		break;
+	case POP_OP:
+		if (op.arg1 < NUM_REGISTERS) {
+			registers[op.arg1] = mStack.top();
+			mStack.pop();
+		} else {
+			std::cerr << "Invalid Registers: " << op.arg1 << std::endl;
+			return -1;
+		}
+		break;
 	case TEST_OP: //test reg <> addr
 		{
 			unsigned int val1, val2;
