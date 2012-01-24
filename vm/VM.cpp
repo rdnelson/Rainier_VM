@@ -195,6 +195,13 @@ int VM::ExecuteOpcode(const Opcode &op)
 			return -1;
 		}
 		break;
+	case JMP_OP:
+		if (op.arg1 < mHeader.text_size) {
+			EIP = op.arg1;
+		} else {
+			std::cerr << "Access Denied: Tried to execute beyond program scope" << std::endl;
+			return -2;
+		}
 	case TEST_OP: //test reg <> addr
 		{
 			unsigned int val1, val2;
