@@ -1,0 +1,3 @@
+loop.rnpe: sets ecx to 3, then execute loop. Prints 'Hello World' three times
+loopstack.rnpe: pushes the value 3 onto the stack and pops it into ecx, then performs loop. Prints 'Hello World!' four times
+loopjmp.rnpe: sets ecx to 3, then jump to the end of the loop, and execute remaining iterations. Prints `Hello World!' twice.
