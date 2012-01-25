@@ -10,7 +10,7 @@
 	#pragma warning(disable: 4996)
 #endif
 
-char* tokenize(char * str, const char* delim, char bracket, char* closebracket) //will return [.... with no end bracket for address type strings
+char* tokenize(char * str, const char * const delim, char bracket, const char* const closebracket) //will return [.... with no end bracket for address type strings
 {
 	static char* strCopy = 0;
 

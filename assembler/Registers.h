@@ -14,7 +14,7 @@ enum Registers {
 	NUM_REGISTERS
 };
 
-static char * STR_Registers[NUM_REGISTERS] = {
+static const char *  const STR_Registers[NUM_REGISTERS] = {
 	"eax",
 	"ebx",
 	"ecx",

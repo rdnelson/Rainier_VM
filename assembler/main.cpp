@@ -48,7 +48,9 @@ int main(int argc, char* argv[])
 		fout.close();
 	}
 
+#ifdef WIN32
 	system("pause");
+#endif
 
 	return 0;
 }

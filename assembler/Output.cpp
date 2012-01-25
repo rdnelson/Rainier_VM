@@ -4,6 +4,7 @@
 #include <fstream>
 #include <cctype>
 #include <cstring>
+#include <cstdlib>
 
 #include "Header.h"
 #include "Opcode.h"
