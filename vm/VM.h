@@ -16,8 +16,8 @@
 
 enum CPU_FLAGS {
 	FLAG_OFL = 1 << 0,
-	FLAG_EQ = 1 << 1,
-	FLAG_GT = 1 << 2,
+	FLAG_EQUALS = 1 << 1,
+	FLAG_GREATER = 1 << 2,
 	FLAG_ZERO = 1 << 3,
 };
 
@@ -58,7 +58,7 @@ private:
 	char* mText;
 	//unsigned int eax, ebx, ecx, edx, esx, esi, edi, eip, ebp, esp;
 	unsigned int registers[NUM_REGISTERS];
-	unsigned char flags;
+	unsigned char mFlags;
 	std::stack<unsigned int> mStack;
 };
 
