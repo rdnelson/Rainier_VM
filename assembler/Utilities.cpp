@@ -10,7 +10,7 @@
 	#pragma warning(disable: 4996)
 #endif
 
-char* tokenize(char * str, const char* delim) //will return [.... with no end bracket for address type strings
+char* tokenize(char * str, const char* delim, char bracket, char* closebracket) //will return [.... with no end bracket for address type strings
 {
 	static char* strCopy = 0;
 
@@ -30,8 +30,8 @@ char* tokenize(char * str, const char* delim) //will return [.... with no end br
 	}
 
 	token = str;
-	if (*str == '[') {
-		str = strpbrk(token, "]");
+	if (*str == bracket) {
+		str = strpbrk(token+1, closebracket);
 	} else {
 		str = strpbrk(token, delim);
 	}
@@ -73,7 +73,7 @@ int GetArgType(char *op)
 		return TYPE_Operator;
 
 	//check if address
-	if(len >=3) { // must have [] and something in between
+	if(len >=2) { // must have [ and something after it
 		if(op[0] == '[') { //check bracket is in place (tokenize only provides the first one)
 			op++;
 			if (GetAddrType(op) == -1)
@@ -82,6 +82,10 @@ int GetArgType(char *op)
 				return TYPE_Address;
 		}
 	}
+
+	if(len >= 2)
+		if(op[0] == ':' || op[0] == '@')
+			return TYPE_Constant;
 
 
 	//check if constant
@@ -107,10 +111,13 @@ int GetAddrType(char* addr)
 	char * op = strCopy;
 	memcpy(strCopy, addr, strlen(addr)+1);
 	int arg1, arg1type, arg2, arg2type, arg3, arg3type;
-	if(strlen(op) <= 1) {
+	if(strlen(op) == 0) {
 		delete strCopy;
 		return -1;
 	}
+	if (op[0] == ':' || op[0] == '@')
+		return SC_CONST_ADD;
+
 	if (op[0] == '[')
 		op++;
 	char *tok = strtok(op, WHITE);
