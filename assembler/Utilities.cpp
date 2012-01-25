@@ -3,8 +3,8 @@
 #include <cstring>
 #include <cctype>
 
-#include "Registers.h"
-#include "Opcode.h"
+#include "common/Registers.h"
+#include "common/Opcode.h"
 
 #ifdef WIN32
 	#pragma warning(disable: 4996)

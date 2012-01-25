@@ -106,11 +106,11 @@ Opcode VM::ReadOpcode()
 	Opcode tmp;
 	tmp.isValid = 1;
 	int v = EIP;
-	tmp.Opcode = mText[v];
+	tmp.opcode = mText[v];
 	EIP++;
-	std::cerr << "Opcode:" << (int)tmp.Opcode << std::endl;
+	std::cerr << "Opcode:" << (int)tmp.opcode << std::endl;
 
-	switch( tmp.Opcode )
+	switch( tmp.opcode )
 	{
 	//no arguments
 	case NOP_OP: //nop
@@ -171,7 +171,7 @@ Opcode VM::ReadOpcode()
 		load_reg(tmp.arg2);
 		break;
 	default:
-		std::cerr << "Invalid Opcode: " << tmp.Opcode << std::endl;
+		std::cerr << "Invalid Opcode: " << tmp.opcode << std::endl;
 		tmp.isValid = 0;
 	}
 	return tmp;
@@ -182,8 +182,8 @@ int VM::ExecuteOpcode(const Opcode &op)
 	if (!op.isValid)
 		return -3;
 	int ret = 0;
-	std::cerr << "Executing opcode: " << (int) op.Opcode << std::endl;
-	switch(op.Opcode)
+	std::cerr << "Executing opcode: " << (int) op.opcode << std::endl;
+	switch(op.opcode)
 	{
 	case MOV_OP: //mov
 		if (op.arg1 < NUM_REGISTERS) {

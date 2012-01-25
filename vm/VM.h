@@ -9,10 +9,10 @@
 #define VM_H_
 
 #include <stack>
-#include "Registers.h"
+#include "common/Registers.h"
 #include "Options.h"
 #include "Header.h"
-#include "Opcode.h"
+#include "common/Opcode.h"
 #include "Utilities.h"
 
 enum CPU_FLAGS {

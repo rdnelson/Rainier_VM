@@ -1,3 +1,4 @@
+COMMON=include
 FILES=$( find . \( -path "*.cpp" -a ! -path "./.*" \)  -printf "%h/%f " )
 echo Generating dependency files for:
 for f in $FILES
@@ -16,7 +17,12 @@ do
 	INCLUDES=$( grep -h "#include" $f | sed -n 's/#include[ tab]*"//p' | sed -n 's/"//p' | tr "\\n" " " )
 	for i in $INCLUDES
 	do
-		echo -n "$i " >> $f.d
+		if [ ! -e $i -a -e $COMMON/$i ]
+		then
+			echo -n "\$(COMMON)/$i " >> $f.d
+		else
+			echo -n "$i " >> $f.d
+		fi
 	done
 	echo >> $f.d
 	echo -n "	\$(CC) \$(DEBUG) \$(CFLAGS) -o $OBJFILE $FILE " >> $f.d

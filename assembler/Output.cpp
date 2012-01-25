@@ -7,8 +7,8 @@
 #include <cstdlib>
 
 #include "Header.h"
-#include "Opcode.h"
-#include "Registers.h"
+#include "common/Opcode.h"
+#include "common/Registers.h"
 #include "Utilities.h"
 
 #ifdef WIN32

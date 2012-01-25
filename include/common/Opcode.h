@@ -14,6 +14,7 @@ enum ArgTypes {
 	TYPE_Address,
 	TYPE_Constant,
 	TYPE_Id,
+	TYPE_Operator, //for assembler
 	NUM_TYPES
 };
 
@@ -35,18 +36,38 @@ enum Opcodes {
 	XOR_OP,
 	NOT_OP,
 	LOOP_OP,
-
+	JE_OP,
+	JNE_OP,
+	JGT_OP,
+	JGE_OP,
+	JLT_OP,
+	JLE_OP,
 
 	SYSCALL_OP = 0xFF
 };
 
+enum Subcode {
+	SC_REG,
+	SC_CONST,
+	SC_CONST_ADD,
+	SC_EBX,
+	SC_EBX_P_EAX,
+	SC_EBX_M_EAX,
+	SC_CONST_P_EAX,
+	SC_CONST_M_EAX,
+	SC_EBX_P_CONST,
+	SC_EBX_M_CONST, //10
+};
+
+#define SUBCODE(dst,src) (char)(((dst << 4) & 0xF0) | (src & 0x0F))
+
 struct Opcode {
-	unsigned char Opcode;
+	unsigned char opcode;
+	unsigned char isValid;
 	unsigned int arg1;
 	unsigned char arg1type;
 	unsigned int arg2;
 	unsigned char arg2type;
-	unsigned char isValid;
 };
 
 #endif

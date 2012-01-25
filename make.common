@@ -1,5 +1,7 @@
 CC= g++
-CFLAGS=-Wall -c
+COMMON=../include
+INCLUDES=-I$(COMMON)
+CFLAGS=-Wall -c $(INCLUDES)
 LFLAGS=-Wall -lstdc++ -lc
 DEBUG=-g
 MFLAG32=-m32

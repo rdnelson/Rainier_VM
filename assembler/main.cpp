@@ -4,8 +4,8 @@
 #include <cstring>
 
 #include "Header.h"
-#include "Opcode.h"
-#include "Registers.h"
+#include "common/Opcode.h"
+#include "common/Registers.h"
 #include "Output.h"
 #include "Utilities.h"
 
