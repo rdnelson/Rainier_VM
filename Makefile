@@ -1,15 +1,16 @@
 VM:=vm/
 COMPILER:=compiler/
+ASSEMBLER:=assembler/
 
 .SILENT: all
 
-.PHONY: all _all $(VM) $(COMPILER) clean VM Compiler
+.PHONY: all _all $(VM) $(COMPILER) $(ASSEMBLER) clean VM Compiler Assembler
 
 all:
 	./gen_makefiles.sh
 	$(MAKE) _all
 
-_all: $(VM) $(COMPILER)
+_all: $(VM) $(COMPILER) $(ASSEMBLER)
 
 VM:
 	./gen_makefiles.sh
@@ -19,7 +20,11 @@ Compiler:
 	./gen_makefiles.sh
 	$(MAKE) --directory=$(COMPILER) all
 
-$(VM) $(COMPILER):
+Assembler:
+	./gen_makefiles.sh
+	$(MAKE) --directory=$(ASSEMBLER) all
+
+$(VM) $(COMPILER) $(ASSEMBLER):
 	$(MAKE) --directory=$@ all
 
 clean:

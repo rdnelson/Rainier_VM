@@ -4,6 +4,7 @@ makefile
 */bin/*
 vm/vm
 compiler/compiler
+assembler/assembler
 *.opensdf
 *.sdf
 *.sln
@@ -12,4 +13,4 @@ compiler/compiler
 */Debug/*
 */Release/*
 */ipch/*
-
+opcodes.db~
