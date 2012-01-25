@@ -110,70 +110,7 @@ Opcode VM::ReadOpcode()
 	EIP++;
 	std::cerr << "Opcode:" << (int)tmp.opcode << std::endl;
 
-	switch( tmp.opcode )
-	{
-	//no arguments
-	case NOP_OP: //nop
-	case NOT_OP: //not
-		break;
-
-	// arg1 : register
-	// arg2 : constant
-	case MOV_OP: //mov add -> constant
-		tmp.arg1type = TYPE_Register;
-		load_reg(tmp.arg1);
-
-		tmp.arg2type = TYPE_Constant;
-		load_arg(tmp.arg2);
-		break;
-
-	// arg1 : register
-	case PUSH_OP: //push
-	case POP_OP: //pop
-		tmp.arg1type = TYPE_Register;
-		load_reg(tmp.arg1);
-
-		tmp.arg2type = TYPE_None;
-		break;
-
-	// arg1 : Address
-	case ADD_OP: //add (1 arg)
-	case SUB_OP: //sub (1 arg)
-	case MUL_OP: //mul (1 arg)
-	case DIV_OP: //div (1 arg)
-	case SHR_OP: //shr (1 arg)
-	case SHL_OP: //shl (1 arg)
-	case JMP_OP: //jmp
-	case AND_OP: //and
-	case OR_OP: //or
-	case XOR_OP: //xor
-	case LOOP_OP: //loop
-		tmp.arg1type = TYPE_Address;
-		load_arg(tmp.arg1);
-
-		tmp.arg2type = TYPE_None;
-		break;
-
-	// arg1 : Id
-	case SYSCALL_OP: //syscall
-		tmp.arg1type = TYPE_Id;
-		load_id(tmp.arg1);
-
-		tmp.arg2type = TYPE_None;
-		break;
-	// arg1 : reg
-	// arg2 : reg
-	case TEST_OP: //test
-		tmp.arg1type = TYPE_Register;
-		load_reg(tmp.arg1);
-
-		tmp.arg2type = TYPE_Register;
-		load_reg(tmp.arg2);
-		break;
-	default:
-		std::cerr << "Invalid Opcode: " << tmp.opcode << std::endl;
-		tmp.isValid = 0;
-	}
+	Utilities::LoadOpcodeArgs(&tmp, mText, registers);
 	return tmp;
 }
 

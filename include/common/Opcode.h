@@ -3,6 +3,7 @@
 
 #define ADDR_SIZE sizeof(unsigned int)
 
+#define load_byte(arg) arg = 0; arg = mText[EIP]; EIP++
 #define load_reg(arg) arg = 0; arg = (unsigned int)mText[EIP]; EIP++
 #define load_id(arg) load_reg(arg)
 #define load_argn(arg, size) memset(&arg, 0, sizeof(arg)); memcpy((char*)&arg, &mText[EIP], size); EIP += size
@@ -60,9 +61,13 @@ enum Subcode {
 };
 
 #define SUBCODE(dst,src) (char)(((dst << 4) & 0xF0) | (src & 0x0F))
+#define SUBCODE1(code) ((code >> 4) & 0xF)
+#define SUBCODE2(code) (code & 0xF)
+#define SUBCODE_N(n, code) ((char)((code >> (4 * (n % 2))) & 0xF))
 
 struct Opcode {
 	unsigned char opcode;
+	unsigned char subcode;
 	unsigned char isValid;
 	unsigned int arg1;
 	unsigned char arg1type;
