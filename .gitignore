@@ -9,3 +9,7 @@ compiler/compiler
 *.sln
 *.suo
 *.vcx*
+*/Debug/*
+*/Release/*
+*/ipch/*
+
