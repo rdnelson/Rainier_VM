@@ -104,6 +104,7 @@ void VM::Execute()
 Opcode VM::ReadOpcode()
 {
 	Opcode tmp;
+	tmp.isValid = 1;
 	int v = EIP;
 	tmp.Opcode = mText[v];
 	EIP++;
@@ -119,7 +120,6 @@ Opcode VM::ReadOpcode()
 	// arg1 : register
 	// arg2 : constant
 	case MOV_OP: //mov add -> constant
-	case TEST_OP: //test
 		tmp.arg1type = TYPE_Register;
 		load_reg(tmp.arg1);
 
@@ -154,18 +154,33 @@ Opcode VM::ReadOpcode()
 		tmp.arg2type = TYPE_None;
 		break;
 
-	// arg1 : constant
+	// arg1 : Id
 	case SYSCALL_OP: //syscall
 		tmp.arg1type = TYPE_Id;
 		load_id(tmp.arg1);
 
 		tmp.arg2type = TYPE_None;
+		break;
+	// arg1 : reg
+	// arg2 : reg
+	case TEST_OP: //test
+		tmp.arg1type = TYPE_Register;
+		load_reg(tmp.arg1);
+
+		tmp.arg2type = TYPE_Register;
+		load_reg(tmp.arg2);
+		break;
+	default:
+		std::cerr << "Invalid Opcode: " << tmp.Opcode << std::endl;
+		tmp.isValid = 0;
 	}
 	return tmp;
 }
 
 int VM::ExecuteOpcode(const Opcode &op)
 {
+	if (!op.isValid)
+		return -3;
 	int ret = 0;
 	std::cerr << "Executing opcode: " << (int) op.Opcode << std::endl;
 	switch(op.Opcode)
@@ -195,34 +210,28 @@ int VM::ExecuteOpcode(const Opcode &op)
 			return -1;
 		}
 		break;
+	case TEST_OP:
+		if (op.arg1 < NUM_REGISTERS && op.arg2 < NUM_REGISTERS) {
+			if(registers[op.arg1] == registers[op.arg2]) {
+				mFlags |= FLAG_EQUALS;
+				mFlags &= ~FLAG_GREATER;
+			} else if(registers[op.arg1] > registers[op.arg2]) {
+				mFlags |= FLAG_GREATER;
+				mFlags &= ~FLAG_EQUALS;
+			} else {
+				mFlags &= ~(FLAG_GREATER | FLAG_EQUALS);
+			}
+		} else {
+			std::cerr << "Invalid Register(s): 1: " << op.arg1 << "	2: " << op.arg2 << std::endl;
+			return -1;
+		}
+		break;
 	case JMP_OP:
 		if (op.arg1 < mHeader.text_size) {
 			EIP = op.arg1;
 		} else {
 			std::cerr << "Access Denied: Tried to execute beyond program scope" << std::endl;
 			return -2;
-		}
-	case TEST_OP: //test reg <> addr
-		{
-			unsigned int val1, val2;
-			switch(op.arg1type)
-			{
-			case TYPE_Register:
-				if(op.arg1 < NUM_REGISTERS) {
-					val1 = registers[op.arg1];
-				} else {
-					return -1;
-				}
-				break;
-			case TYPE_Address:
-				val1 = mData[op.arg1];
-				break;
-			case TYPE_Constant:
-				val1 = op.arg1;
-				break;
-			}
-			GetOpcodeData(op.arg2type, op.arg2, val2);
-
 		}
 		break;
 	case SYSCALL_OP:

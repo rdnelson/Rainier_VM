@@ -46,6 +46,7 @@ struct Opcode {
 	unsigned char arg1type;
 	unsigned int arg2;
 	unsigned char arg2type;
+	unsigned char isValid;
 };
 
 #endif
