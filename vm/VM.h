@@ -9,6 +9,7 @@
 #define VM_H_
 
 #include <stack>
+#include "Registers.h"
 #include "Options.h"
 #include "Header.h"
 #include "Opcode.h"
@@ -21,18 +22,16 @@ enum CPU_FLAGS {
 	FLAG_ZERO = 1 << 3,
 };
 
-#define NUM_REGISTERS 10
 
-#define EAX registers[0]
-#define EBX registers[1]
-#define ECX registers[2]
-#define EDX registers[3]
-#define ESX registers[4]
-#define ESI registers[5]
-#define EDI registers[6]
-#define EBP registers[7]
-#define ESP registers[8]
-#define EIP registers[9]
+#define EAX registers[REG_EAX]
+#define EBX registers[REG_EBX]
+#define ECX registers[REG_ECX]
+#define EDX registers[REG_EDX]
+#define ESI registers[REG_ESI]
+#define EDI registers[REG_EDI]
+#define EBP registers[REG_EBP]
+#define ESP registers[REG_ESP]
+#define EIP registers[REG_EIP]
 
 class VM {
 public:
