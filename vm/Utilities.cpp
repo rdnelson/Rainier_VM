@@ -49,8 +49,18 @@ int Utilities::GetArgType(int n, char subcode)
 
 void Utilities::LoadOpcodeArgs(Opcode * op, char* mText, unsigned int * registers)
 {
+	switch(op->opcode)
+	{
+	case NOP_OP:
+	case SYSCALL_OP:
+	case NOT_OP:
+		break;
+	default:
+		load_byte(op->subcode);
+	}
+
 	for(int i = 0; i < 2; i++) {
-		switch(GetArgType(1,op->subcode))
+		switch(GetArgType(i,op->subcode))
 		{
 		case TYPE_Constant:
 		case TYPE_Address:
