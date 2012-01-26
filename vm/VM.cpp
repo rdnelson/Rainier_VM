@@ -10,7 +10,7 @@
 #include <iostream>
 #include <fstream>
 #include <cstring>
-#include "Header.h"
+#include "common/Header.h"
 
 VM::VM(Options *opts) : mOpts(opts) {
 	// TODO Auto-generated constructor stub
@@ -57,7 +57,7 @@ void VM::run()
 	//load in data and text
 	fin.seekg(mHeader.data_pos);
 	fin.read(mData, mHeader.data_size);
-	unsigned int read_count = fin.gcount();
+	unsigned int read_count = (int)fin.gcount();
 	if( read_count != mHeader.data_size ) {
 		mReady = false;
 		std::cerr << "Invalid read size: data" << std::endl;
@@ -68,7 +68,7 @@ void VM::run()
 
 	fin.seekg(mHeader.text_pos);
 	fin.read(mText, mHeader.text_size);
-	read_count = fin.gcount();
+	read_count = (int)fin.gcount();
 	std::cerr << "Characters in text: " << read_count << std::endl;
 	if( read_count != mHeader.text_size ) {
 		mReady = false;

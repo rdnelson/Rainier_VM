@@ -11,7 +11,7 @@
 #include <stack>
 #include "common/Registers.h"
 #include "Options.h"
-#include "Header.h"
+#include "common/Header.h"
 #include "common/Opcode.h"
 #include "Utilities.h"
 

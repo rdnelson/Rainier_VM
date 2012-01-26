@@ -9,7 +9,7 @@
 #define UTILITIES_H_
 
 class VM;
-class Opcode;
+struct Opcode;
 
 class Utilities {
 public:
