@@ -9,4 +9,7 @@ int main(int argc, char* argv[])
 
 	VM vm(&opts);
 	vm.run();
+#ifdef WIN32
+	system("pause");
+#endif
 }
