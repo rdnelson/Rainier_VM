@@ -9,6 +9,7 @@
 #define VM_H_
 
 #include <stack>
+#include <sstream>
 #include "common/Registers.h"
 #include "Options.h"
 #include "common/Header.h"
@@ -60,6 +61,8 @@ private:
 	unsigned int registers[NUM_REGISTERS];
 	unsigned char mFlags;
 	std::stack<unsigned int> mStack;
+	std::stringstream mErr;
+	std::streambuf* mCerrBackup;
 };
 
 #endif /* VM_H_ */

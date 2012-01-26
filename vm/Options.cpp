@@ -16,7 +16,17 @@ Options::Options(int argc, char* argv[]) {
 		mValid = false;
 		return;
 	}
-	mExe = argv[1];
+
+	int exeIndex = 1;
+	if(!strcmp(argv[exeIndex], "-v")) {
+		mVerbose = true;
+		exeIndex++;
+	}
+	else
+		mVerbose = false;
+
+	mExe = argv[exeIndex];
+
 
 	FILE* tmpFile = fopen(mExe.c_str(), "r");
 	if(!tmpFile)

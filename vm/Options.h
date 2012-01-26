@@ -16,11 +16,13 @@ public:
 	virtual ~Options();
 
 	inline bool IsValid() { return mValid; }
+	inline bool IsVerbose() { return mVerbose; }
 
 	inline std::string GetExe() { return mExe; }
 
 private:
 	bool mValid;
+	bool mVerbose;
 	std::string mExe;
 };
 

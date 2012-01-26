@@ -1,7 +1,7 @@
 #ifndef __OPCODE_H__
 #define __OPCODE_H__
 
-#include <cstdio>
+#include <iostream>
 
 #define ADDR_SIZE sizeof(unsigned int)
 
@@ -105,9 +105,9 @@ struct Opcode {
 
 void printop()
 {
-	fprintf(stderr, "Opcode: %x\nSubcode: %x\nIsValid: %d\n", opcode, subcode, isValid);
+	std::cerr << "Opcode: " << std::hex << opcode << "\nSubcode: " << subcode << "\nIsValid: " << isValid << std::dec << std::endl;
 	for(int i = 0; i < 2; i++)
-		fprintf(stderr, "Arg%d: %x 	Type: %d\n", i, args[i], argtype[i]);
+		std::cerr << "Arg" << i << std::hex << ": 0x" << args[i] << std::dec << "	Type: " << argtype[i] << std::endl;
 }
 };
 

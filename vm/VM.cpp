@@ -15,6 +15,12 @@
 VM::VM(Options *opts) : mOpts(opts) {
 	// TODO Auto-generated constructor stub
 	mReady = opts->IsValid();
+
+	mCerrBackup = std::cerr.rdbuf();
+
+	if (!opts->IsVerbose()){
+		std::cerr.rdbuf(mErr.rdbuf());
+	}
 	std::cerr << "VM created. mReady: " << mReady << std::endl;
 }
 
@@ -80,6 +86,8 @@ void VM::run()
 	fin.close();
 
 	Execute();
+
+	std::cerr.rdbuf(mCerrBackup);
 
 }
 
