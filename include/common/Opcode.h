@@ -1,6 +1,8 @@
 #ifndef __OPCODE_H__
 #define __OPCODE_H__
 
+#include <cstdio>
+
 #define ADDR_SIZE sizeof(unsigned int)
 
 #define load_byte(arg) arg = 0; arg = mText[EIP]; EIP++
@@ -13,6 +15,7 @@ enum ArgTypes {
 	TYPE_None,
 	TYPE_Register,
 	TYPE_Address,
+	TYPE_Def_Address, //for VM
 	TYPE_Constant,
 	TYPE_Id,
 	TYPE_Operator, //for assembler
@@ -43,8 +46,36 @@ enum Opcodes {
 	JGE_OP,
 	JLT_OP,
 	JLE_OP,
+	SYSCALL_OP
+};
 
-	SYSCALL_OP = 0xFF
+static char OP_ArgNum[] = {
+	0,
+	2,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	2,
+	1,
+	1,
+	1,
+	0,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	0
 };
 
 enum Subcode {
@@ -57,7 +88,7 @@ enum Subcode {
 	SC_CONST_P_EAX,
 	SC_CONST_M_EAX,
 	SC_EBX_P_CONST,
-	SC_EBX_M_CONST, //10
+	SC_EBX_M_CONST, //9
 };
 
 #define SUBCODE(dst,src) (char)(((dst << 4) & 0xF0) | (src & 0x0F))
@@ -69,10 +100,15 @@ struct Opcode {
 	unsigned char opcode;
 	unsigned char subcode;
 	unsigned char isValid;
-	unsigned int arg1;
-	unsigned char arg1type;
-	unsigned int arg2;
-	unsigned char arg2type;
+	unsigned int args[2];
+	unsigned char argtype[2];
+
+void printop()
+{
+	fprintf(stderr, "Opcode: %x\nSubcode: %x\nIsValid: %d\n", opcode, subcode, isValid);
+	for(int i = 0; i < 2; i++)
+		fprintf(stderr, "Arg%d: %x 	Type: %d\n", i, args[i], argtype[i]);
+}
 };
 
 #endif

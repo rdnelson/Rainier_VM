@@ -68,7 +68,7 @@ void ParseFile(std::ifstream &fin, std::ofstream &fout)
 	std::string tmpTextOut = "";
 	std::string tmpDataOut = "";
 
-	
+
 	while(!fin.eof()) {
 		tmpTextOut = "";
 		fin.getline(line,sizeof(line) - 1);
@@ -80,26 +80,30 @@ void ParseFile(std::ifstream &fin, std::ofstream &fout)
 			continue;
 
 		TO_LOWER(op);
-		
+
 		IFOP("mov") {
 			tmpTextOut.push_back(MOV_OP);
 
-			char arg1[64];
-			memset(arg1, 0, sizeof(arg1));
+			char args[3][64];
+
+tmpTextOut.size();
+			memset(args[0], 0, sizeof(args[0]));
+//tmpTextOut.c_str();
+tmpTextOut.size();
+			op = tokenize(0, WHITE);
+			TO_LOWER(op);
+			memcpy(args[0], op, min(sizeof(args[0]) - 1, strlen(op)));
+			int argtype[3];
+			argtype[0] = GetArgType(op);
 
 			op = tokenize(0, WHITE);
 			TO_LOWER(op);
-			memcpy(arg1, op, min(sizeof(arg1) - 1, strlen(op)));
-			int arg1type = GetArgType(op);
+			argtype[1] = GetArgType(op);
 
-			op = tokenize(0, WHITE);
-			TO_LOWER(op);
-			int arg2type = GetArgType(op);
-
-			if(arg1type == TYPE_Register) { // mov ? -> reg
-				if (arg2type == TYPE_Constant) { //? = const
+			if(argtype[0] == TYPE_Register) { // mov ? -> reg
+				if (argtype[1] == TYPE_Constant) { //? = const
 					tmpTextOut.push_back(SUBCODE(SC_REG, SC_CONST));
-					OutputRegister(arg1, tmpTextOut);
+					OutputRegister(args[0], tmpTextOut);
 					if(OutputConstant(op, tmpTextOut)) {
 						struct unknown tmp;
 						tmp.lineNumber = lineNumber;
@@ -107,30 +111,30 @@ void ParseFile(std::ifstream &fin, std::ofstream &fout)
 						unknownLabels[op+1] = tmp;
 						OutputConstant((unsigned int)0, tmpTextOut);
 					}
-				}else if(arg2type == TYPE_Register) {
+				}else if(argtype[1] == TYPE_Register) {
 					tmpTextOut.push_back(SUBCODE(SC_REG, SC_REG));
-					OutputSplitRegister(arg1, op, tmpTextOut);
-					//OutputRegister(arg1, tmpTextOut);
+					OutputSplitRegister(args[0], op, tmpTextOut);
+					//OutputRegister(args[0], tmpTextOut);
 					//OutputRegister(op, tmpTextOut);
-				} else if(arg2type == TYPE_Address) {
-					
+				} else if(argtype[1] == TYPE_Address) {
+
 					tmpTextOut.push_back(SUBCODE(SC_REG, GetAddrType(op)));
-					OutputRegister(arg1, tmpTextOut);
+					OutputRegister(args[0], tmpTextOut);
 					OutputAddress(op, tmpTextOut);
 
 				} else {
-					ERROR("Invalid arg2");
+					ERROR("Invalid args[1]");
 				}
-			} else if(arg1type == TYPE_Address) {
-				if(arg2type == TYPE_Register) {
-					tmpTextOut.push_back(SUBCODE(GetAddrType(arg1),SC_REG));
+			} else if(argtype[0] == TYPE_Address) {
+				if(argtype[1] == TYPE_Register) {
+					tmpTextOut.push_back(SUBCODE(GetAddrType(args[0]),SC_REG));
 					OutputAddress(op, tmpTextOut);
 					OutputRegister(op, tmpTextOut);
 				} else {
-					ERROR("Invalid arg2");
+					ERROR("Invalid args[1]");
 				}
 			} else {
-				ERROR("Invalid arg1");
+				ERROR("Invalid args[0]");
 			}
 		} else IFOP("nop") {
 			tmpTextOut.push_back(NOP_OP);
@@ -178,21 +182,22 @@ void ParseFile(std::ifstream &fin, std::ofstream &fout)
 			tmpTextOut.push_back(TEST_OP);
 			op = tokenize(0, WHITE);
 			TO_LOWER(op);
-			char arg1[64];
-			memset(arg1, 0, sizeof(arg1));
+			char args[0][64];
+			memset(args[0], 0, sizeof(args[0]));
 
 			op = tokenize(0, WHITE);
 			TO_LOWER(op);
-			memcpy(arg1, op, min(sizeof(arg1) - 1, strlen(op)));
-			int arg1type = GetArgType(op);
+			memcpy(args[0], op, min(sizeof(args[0]) - 1, strlen(op)));
+			int argtype[2];
+			argtype[0] = GetArgType(op);
 
 			op = tokenize(0, WHITE);
 			TO_LOWER(op);
-			int arg2type = GetArgType(op);
-			if(arg1type == TYPE_Register) { // mov ? -> reg
-				if (arg2type == TYPE_Constant) { //? = const
+			argtype[1] = GetArgType(op);
+			if(argtype[0] == TYPE_Register) { // mov ? -> reg
+				if (argtype[1] == TYPE_Constant) { //? = const
 					tmpTextOut.push_back(SUBCODE(SC_REG, SC_CONST));
-					OutputRegister(arg1, tmpTextOut);
+					OutputRegister(args[0], tmpTextOut);
 					if(OutputConstant(op, tmpTextOut)) {
 						struct unknown tmp;
 						tmp.lineNumber = lineNumber;
@@ -200,20 +205,20 @@ void ParseFile(std::ifstream &fin, std::ofstream &fout)
 						unknownLabels[op+1] = tmp;
 						OutputConstant((unsigned int)0, tmpTextOut);
 					}
-				}else if(arg2type == TYPE_Register) {
+				}else if(argtype[1] == TYPE_Register) {
 					tmpTextOut.push_back(SUBCODE(SC_REG, SC_REG));
-					OutputSplitRegister(arg1, op, tmpTextOut);
-					//OutputRegister(arg1, tmpTextOut);
+					OutputSplitRegister(args[0], op, tmpTextOut);
+					//OutputRegister(args[0], tmpTextOut);
 					//OutputRegister(op, tmpTextOut);
-				} else if(arg2type == TYPE_Address) {
+				} else if(argtype[1] == TYPE_Address) {
 					tmpTextOut.push_back(SUBCODE(SC_REG, GetAddrType(op)));
-					OutputRegister(arg1, tmpTextOut);
+					OutputRegister(args[0], tmpTextOut);
 					OutputAddress(op, tmpTextOut);
 				} else {
-					ERROR("Invalid arg2");
+					ERROR("Invalid args[1]");
 				}
 			} else {
-				ERROR("Invalid arg1: Must be register");
+				ERROR("Invalid args[0]: Must be register");
 			}
 		} else IFOP("and") {
 			tmpTextOut.push_back(AND_OP);
@@ -256,8 +261,18 @@ void ParseFile(std::ifstream &fin, std::ofstream &fout)
 				Data[op] = dataout.size();
 				op = tokenize(0, WHITE, '"', "\"");
 				op++;
-				
+
 				int len = strlen(op);
+
+				for(int j = 0; j < len; j++) {
+					if (op[j] == '\\') {
+						if(op[j + 1] == 'n') {
+							op[j] = '\n';
+							j++;
+							strcpy(&op[j], &op[j + 1]);
+						}
+					}
+				}
 				for(int j = 0; j < 4; j++)
 					dataout.push_back(((char*)&len)[j]);
 				dataout.append(op);

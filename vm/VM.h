@@ -42,14 +42,15 @@ public:
 	void Execute();
 
 	Opcode ReadOpcode();
-	int ExecuteOpcode(const Opcode & op);
-	int Syscall(unsigned char code);
+	int ExecuteOpcode(Opcode & op);
+	int Syscall();
 
 	friend class Utilities;
 
 private:
 
 	int GetOpcodeData(const unsigned int type, const unsigned int val, unsigned int &data);
+	void ResolveOpcodeArg(Opcode &op, unsigned int arg);
 	bool mReady;
 	Options* mOpts;
 	RNPE_Header mHeader;

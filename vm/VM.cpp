@@ -94,6 +94,7 @@ void VM::Execute()
 	int retVal;
 	do
 	{
+		std::cerr << "----------------------------------------------------" << std::endl;
 		std::cerr << "Reading opcode" << std::endl;
 		op = ReadOpcode();
 		retVal = ExecuteOpcode(op);
@@ -106,96 +107,117 @@ Opcode VM::ReadOpcode()
 	Opcode tmp;
 	tmp.isValid = 1;
 	int v = EIP;
-	tmp.opcode = mText[v];
-	EIP++;
+	//tmp.opcode = mText[v];
+	//EIP++;
+	load_byte(tmp.opcode);
 	std::cerr << "Opcode:" << (int)tmp.opcode << std::endl;
 
 	Utilities::LoadOpcodeArgs(&tmp, mText, registers);
 	return tmp;
 }
 
-int VM::ExecuteOpcode(const Opcode &op)
+int VM::ExecuteOpcode (Opcode &op)
 {
 	if (!op.isValid)
 		return -3;
 	int ret = 0;
 	std::cerr << "Executing opcode: " << (int) op.opcode << std::endl;
+	op.printop();
 	switch(op.opcode)
 	{
 	case MOV_OP: //mov
-		if (op.arg1 < NUM_REGISTERS) {
-			registers[op.arg1] = op.arg2;
-		} else {
-			std::cerr << "Invalid Register: " << op.arg1 << std::endl;
-			return -1;
+		std::cerr << "Executing Mov" << std::endl;
+		ResolveOpcodeArg(op, 1);
+		switch(op.argtype[0])
+		{
+		case TYPE_Register:
+			std::cerr << "Assigning " << STR_Registers[op.args[0]] << " = " << op.args[1] << std::endl;
+			op.printop();
+			registers[op.args[0]] = op.args[1];
+			break;
+		case TYPE_Address:
+			mData[op.args[0]] = op.args[1];
+			break;
+		case TYPE_Def_Address:
+			ResolveOpcodeArg(op, 0);
+			mData[op.args[0]] = op.args[1];
+			break;
+		default:
+			std::cerr << "Invalid Mov operation" << std::endl;
 		}
 		break;
 	case PUSH_OP:
-		if (op.arg1 < NUM_REGISTERS) {
-			mStack.push(registers[op.arg1]);
-		} else {
-			std::cerr << "Invalid Registers: " << op.arg1 << std::endl;
-			return -1;
-		}
+		ResolveOpcodeArg(op,0);
+		mStack.push(op.args[0]);
 		break;
 	case POP_OP:
-		if (op.arg1 < NUM_REGISTERS) {
-			registers[op.arg1] = mStack.top();
-			mStack.pop();
-		} else {
-			std::cerr << "Invalid Registers: " << op.arg1 << std::endl;
-			return -1;
+		switch(op.argtype[0])
+		{
+		case TYPE_Register:
+			registers[op.args[0]] = mStack.top();
+			break;
+		case TYPE_Address:
+			mData[op.args[0]] = mStack.top();
+			break;
+		case TYPE_Def_Address:
+			ResolveOpcodeArg(op, 0);
+			mData[op.args[0]] = mStack.top();
+			break;
 		}
+		mStack.pop();
 		break;
 	case TEST_OP:
-		if (op.arg1 < NUM_REGISTERS && op.arg2 < NUM_REGISTERS) {
-			if(registers[op.arg1] == registers[op.arg2]) {
+		if (op.args[0] < NUM_REGISTERS && op.args[1] < NUM_REGISTERS) {
+			if(registers[op.args[0]] == registers[op.args[1]]) {
 				mFlags |= FLAG_EQUALS;
 				mFlags &= ~FLAG_GREATER;
-			} else if(registers[op.arg1] > registers[op.arg2]) {
+			} else if(registers[op.args[0]] > registers[op.args[1]]) {
 				mFlags |= FLAG_GREATER;
 				mFlags &= ~FLAG_EQUALS;
 			} else {
 				mFlags &= ~(FLAG_GREATER | FLAG_EQUALS);
 			}
 		} else {
-			std::cerr << "Invalid Register(s): 1: " << op.arg1 << "	2: " << op.arg2 << std::endl;
+			std::cerr << "Invalid Register(s): 1: " << op.args[0] << "	2: " << op.args[1] << std::endl;
 			return -1;
 		}
 		break;
 	case JMP_OP:
-		if (op.arg1 < mHeader.text_size) {
-			EIP = op.arg1;
+		ResolveOpcodeArg(op, 0);
+		if (op.args[0] < mHeader.text_size) {
+			EIP = op.args[0];
 		} else {
 			std::cerr << "Access Denied: Tried to execute beyond program scope" << std::endl;
 			return -2;
 		}
 		break;
 	case SYSCALL_OP:
-		ret = Syscall(op.arg1);
+		ret = Syscall();
 		if(ret)
 			return ret;
 		break;
 
 	case LOOP_OP: //loop
 		ECX--;
+		ResolveOpcodeArg(op, 0);
+		op.printop();
 		if (ECX != 0)
-			EIP = op.arg1;
+			EIP = op.args[0];
 		break;
 	}
 
 	return 0;
 }
 
-int VM::Syscall(const unsigned char code)
+int VM::Syscall()
 {
-	switch(code)
+	switch(EAX)
 	{
 	case 0x00: //exit
 		return EDX;
 		break;
 	case 0x01: //printf
-		char * retStr = Utilities::LoadString(this, EAX);
+		char * retStr = Utilities::LoadString(this, EDX);
 		printf("%s", retStr);
 		delete retStr;
 		break;
@@ -226,4 +248,45 @@ int VM::GetOpcodeData(const unsigned int type, const unsigned int val, unsigned 
 		break;
 	}
 	return 0;
+}
+
+void VM::ResolveOpcodeArg(Opcode &op, unsigned int arg)
+{
+	if (arg >= 2)
+		return;
+
+	switch(SUBCODE_N(arg, op.subcode))
+	{
+	case SC_REG:
+		op.args[arg] = registers[op.args[arg]];
+		break;
+	case SC_CONST:
+		break;
+	case SC_CONST_ADD:
+		memcpy(&op.args[arg], &mData[op.args[arg]], sizeof(op.args[arg]));
+		break;
+	case SC_EBX:
+		op.args[arg] = EBX;
+		break;
+	case SC_EBX_P_EAX:
+		op.args[arg] = EBX + EAX;
+		break;
+	case SC_EBX_M_EAX:
+		op.args[arg] = EBX - EAX;
+		break;
+	case SC_CONST_P_EAX:
+		op.args[arg] = op.args[arg] + EAX;
+		break;
+	case SC_CONST_M_EAX:
+		op.args[arg] = op.args[arg] - EAX;
+		break;
+	case SC_EBX_P_CONST:
+		op.args[arg] = EBX + op.args[arg];
+		break;
+	case SC_EBX_M_CONST:
+		op.args[arg] = EBX - op.args[arg];
+		break;
+	default:
+		std::cerr << "Invalid subcode: " << SUBCODE_N(arg, op.subcode) << std::endl;
+	}
 }

@@ -117,10 +117,11 @@ int OutputOneArg(char *op, std::string &asmout, unsigned int textpos, unsigned i
 	op = tokenize(0, WHITE);
 	TO_LOWER(op);
 	int argtype = GetArgType(op);
+	std::cerr << "Opcode: " << op << " only argument is type: " << argtype << std::endl;
 	switch(argtype)
 	{
 	case TYPE_Constant:
-		asmout.push_back(SC_CONST);
+		asmout.push_back(SC_CONST << 4);
 		if(OutputConstant(op, asmout)) {
 			struct unknown tmp;
 			tmp.lineNumber = lineNumber;
@@ -130,11 +131,11 @@ int OutputOneArg(char *op, std::string &asmout, unsigned int textpos, unsigned i
 		}
 		break;
 	case TYPE_Register:
-		asmout.push_back(SC_REG);
+		asmout.push_back(SC_REG << 4);
 		OutputRegister(op, asmout);
 		break;
 	case TYPE_Address:
-		asmout.push_back(GetAddrType(op));
+		asmout.push_back(GetAddrType(op) << 4);
 		OutputAddress(op, asmout);
 		break;
 	default:
