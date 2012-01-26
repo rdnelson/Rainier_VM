@@ -63,7 +63,7 @@ enum Subcode {
 #define SUBCODE(dst,src) (char)(((dst << 4) & 0xF0) | (src & 0x0F))
 #define SUBCODE1(code) ((code >> 4) & 0xF)
 #define SUBCODE2(code) (code & 0xF)
-#define SUBCODE_N(n, code) ((char)((code >> (4 * (n % 2))) & 0xF))
+#define SUBCODE_N(n, code) ((char)((code >> (4 * (n == 0 ? 1 : 0))) & 0xF))
 
 struct Opcode {
 	unsigned char opcode;
