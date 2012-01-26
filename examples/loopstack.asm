@@ -1,4 +1,4 @@
-ds Text "Hello World"
+ds Text "Hello World\n"
 mov eax, [0]
 mov edx, 4
 push edx
