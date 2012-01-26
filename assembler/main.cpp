@@ -182,7 +182,7 @@ tmpTextOut.size();
 			tmpTextOut.push_back(TEST_OP);
 			op = tokenize(0, WHITE);
 			TO_LOWER(op);
-			char args[0][64];
+			char args[2][64];
 			memset(args[0], 0, sizeof(args[0]));
 
 			op = tokenize(0, WHITE);
@@ -270,6 +270,7 @@ tmpTextOut.size();
 							op[j] = '\n';
 							j++;
 							strcpy(&op[j], &op[j + 1]);
+							len--;
 						}
 					}
 				}
