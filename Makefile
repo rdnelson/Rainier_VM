@@ -4,7 +4,7 @@ ASSEMBLER:=assembler/
 
 .SILENT: all
 
-.PHONY: all _all $(VM) $(COMPILER) $(ASSEMBLER) clean VM Compiler Assembler
+.PHONY: all _all $(VM) $(COMPILER) $(ASSEMBLER) clean VM Compiler Assembler cppcheck
 
 all:
 	./gen_makefiles.sh
@@ -29,3 +29,6 @@ $(VM) $(COMPILER) $(ASSEMBLER):
 
 clean:
 	find . \( -iname "*.o" -o -iname "*.d" \) -exec rm {} \;
+
+cppcheck:
+	cppcheck . --enable=all --xml 2>cppcheck-results.xml -I include
