@@ -13,11 +13,11 @@
 char* Utilities::LoadString(VM* vm, unsigned int address)
 {
 	int strLength;
-	memcpy((char*)&strLength, vm->mData, sizeof(strLength));
+	memcpy((char*)&strLength, vm->mData + address, sizeof(strLength));
 	char* str = new char[strLength+1];
 	memset(str, 0, strLength + 1);
 	std::cerr << "Length: " << strLength << std::endl;
-	memcpy(str, vm->mData + sizeof(strLength), strLength);
+	memcpy(str, vm->mData + address + sizeof(strLength), strLength);
 	return str;
 }
 
@@ -64,25 +64,30 @@ void Utilities::LoadOpcodeArgs(Opcode * op, char* mText, unsigned int * register
 	std::cerr << "Read subcode, eip = " << registers[REG_EIP] << std::endl;
 
 	std::cerr << "Subcode: " << std::hex << (int)op->subcode << std::dec << std::endl;
+	if (op->subcode == SUBCODE(SC_REG, SC_REG)) { //split register (only one byte)
+		load_byte(op->args[0]);
+		op->args[1] = op->args[0] & 0xF;
+		op->args[0] >>= 4;
+	} else {
 
-	for(int i = 0; i < OP_ArgNum[op->opcode]; i++) {
-		std::cerr << "Type of arg" << i << ": " << GetArgType(i, op->subcode) << std::endl;
-		op->argtype[i] = GetArgType(i, op->subcode);
-		switch(GetArgType(i,op->subcode))
-		{
-		case TYPE_Constant:
-		case TYPE_Address:
-			load_arg(op->args[i]);
-			break;
-		case TYPE_Register:
-			load_byte(op->args[i]);
-			break;
-		case TYPE_Def_Address:
-		case TYPE_None:
-		default:
-			break;
+		for(int i = 0; i < OP_ArgNum[op->opcode]; i++) {
+			std::cerr << "Type of arg" << i << ": " << GetArgType(i, op->subcode) << std::endl;
+			op->argtype[i] = GetArgType(i, op->subcode);
+			switch(GetArgType(i,op->subcode))
+			{
+			case TYPE_Constant:
+			case TYPE_Address:
+				load_arg(op->args[i]);
+				break;
+			case TYPE_Register:
+				load_byte(op->args[i]);
+				break;
+			case TYPE_Def_Address:
+			case TYPE_None:
+			default:
+				break;
+			}
+			std::cerr << "Finished reading arg" << i + 1 << " it equals " << op->args[i] << " eip = " << registers[REG_EIP] << std::endl;
 		}
-		std::cerr << "Finished reading arg" << i + 1 << " it equals " << op->args[i] << " eip = " << registers[REG_EIP] << std::endl;
 	}
-
 }
