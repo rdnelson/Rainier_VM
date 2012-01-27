@@ -49,35 +49,6 @@ enum Opcodes {
 	SYSCALL_OP
 };
 
-static char OP_ArgNum[] = {
-	0,
-	2,
-	1,
-	1,
-	1,
-	1,
-	1,
-	1,
-	1,
-	1,
-	1,
-	2,
-	1,
-	1,
-	1,
-	0,
-	1,
-	1,
-	1,
-	1,
-	1,
-	1,
-	1,
-	1,
-	1,
-	0
-};
-
 enum Subcode {
 	SC_NONE,
 	SC_CONST,
@@ -110,6 +81,39 @@ struct Opcode {
 		for(int i = 0; i < 2; i++)
 			std::cerr << "Arg" << i << std::hex << ": 0x" << args[i] << std::dec << "	Type: " << (int)argtype[i] << std::endl;
 	}
+};
+
+#endif
+
+#ifdef OP_ARGNUM
+
+static char OP_ArgNum[] = {
+	0,
+	2,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	2,
+	1,
+	1,
+	1,
+	0,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1,
+	0
 };
 
 #endif

@@ -10,6 +10,9 @@
 #include <cstring>
 #include <iostream>
 
+#define OP_ARGNUM
+#include "common/Opcode.h"
+
 char* Utilities::LoadString(VM* vm, unsigned int address)
 {
 	int strLength;
