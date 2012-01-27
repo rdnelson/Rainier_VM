@@ -69,7 +69,7 @@ int GetArgType(char *op)
 			return TYPE_Register;
 	}
 
-	if(!strcmp(op, "+") | !strcmp(op, "-"))
+	if(!strcmp(op, "+") || !strcmp(op, "-"))
 		return TYPE_Operator;
 
 	//check if address
@@ -112,7 +112,7 @@ int GetAddrType(char* addr)
 	memcpy(strCopy, addr, strlen(addr)+1);
 	int args[3], argtype[3];
 	if(strlen(op) == 0) {
-		delete strCopy;
+		delete[] strCopy;
 		return -1;
 	}
 	if (op[0] == ':' || op[0] == '@')
@@ -127,14 +127,14 @@ int GetAddrType(char* addr)
 	if(argtype[0] == TYPE_Register) {
 		args[0] = GetRegister(tok);
 		if(args[0] != REG_EBX) {
-			delete strCopy;
+			delete[] strCopy;
 			return -1;
 		}
 
 	} else if(argtype[0] == TYPE_Constant) {
 		//args[0] = atoi(tok);
 	} else {
-		delete strCopy;
+		delete[] strCopy;
 		return -1;
 	}
 
@@ -142,7 +142,7 @@ int GetAddrType(char* addr)
 
 	//if there's only one argument it's either constant, ebx or invalid
 	if(tok == 0) {
-		delete strCopy;
+		delete[] strCopy;
 		if (argtype[0] == TYPE_Constant)
 			return SC_CONST_ADD;
 		else if (argtype[0] == TYPE_Register && args[0] == REG_EBX)
@@ -154,7 +154,7 @@ int GetAddrType(char* addr)
 	//if the second argument isn't an operator, it's invalid
 	argtype[1] = GetArgType(tok);
 	if(argtype[1] != TYPE_Operator) {
-		delete strCopy;
+		delete[] strCopy;
 		return -1;
 	}
 
@@ -165,7 +165,7 @@ int GetAddrType(char* addr)
 
 	//if there are only two arguments, it's invalid
 	if(!tok) {
-		delete strCopy;
+		delete[] strCopy;
 		return -1;
 	}
 
@@ -174,25 +174,25 @@ int GetAddrType(char* addr)
 	if(argtype[2] == TYPE_Register) {
 		args[2] = GetRegister(tok);
 		if(args[2] != REG_EAX) {
-			delete strCopy;
+			delete[] strCopy;
 			return -1;
 		}
 	} else if(argtype[2] == TYPE_Constant) {
 		//args[2] = atoi(tok);
 	} else {
-		delete strCopy;
+		delete[] strCopy;
 		return -1;
 	}
 
 	//ensure that there are at max three tokens
 	if (strtok(0, WHITE)) {
-		delete strCopy;
+		delete[] strCopy;
 		return -1;
 	}
 
 	//register identities have already been checked
 	if (argtype[0] == TYPE_Constant) {
-		delete strCopy;
+		delete[] strCopy;
 		if (argtype[2] == TYPE_Register) 
 			return args[1] == '+' ? SC_CONST_P_EAX : SC_CONST_M_EAX;
 		else
@@ -200,7 +200,7 @@ int GetAddrType(char* addr)
 	}
 
 	if (argtype[0] == TYPE_Register) {
-		delete strCopy;
+		delete[] strCopy;
 		if (argtype[2] == TYPE_Register)
 			return args[1] == '+' ? SC_EBX_P_EAX : SC_EBX_M_EAX;
 		else if (argtype[2] == TYPE_Constant)
@@ -209,7 +209,7 @@ int GetAddrType(char* addr)
 			return -1;
 	}
 
-	delete strCopy; 
+	delete[] strCopy;
 
 	return -1;
 }

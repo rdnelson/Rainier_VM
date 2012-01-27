@@ -29,7 +29,6 @@ void ParseFile(std::ifstream &fin, std::ofstream &outfile);
 
 int main(int argc, char* argv[])
 {
-	std::string outfile = "a.rnpe";
 	if (argc != 3) {
 		Usage();
 	} else {
@@ -59,14 +58,11 @@ void ParseFile(std::ifstream &fin, std::ofstream &fout)
 {
 	char line[128] = "";
 	char *op;
-	int i = 0;
 	std::string textout = "";
 	std::string dataout = "";
-	int retcode = 0;
 	int invalidCode = 0;
 	int lineNumber = 0;
 	std::string tmpTextOut = "";
-	std::string tmpDataOut = "";
 
 
 	while(!fin.eof()) {
@@ -84,16 +80,14 @@ void ParseFile(std::ifstream &fin, std::ofstream &fout)
 		IFOP("mov") {
 			tmpTextOut.push_back(MOV_OP);
 
-			char args[3][64];
+			char args[2][64];
 
-tmpTextOut.size();
 			memset(args[0], 0, sizeof(args[0]));
-//tmpTextOut.c_str();
-tmpTextOut.size();
+
 			op = tokenize(0, WHITE);
 			TO_LOWER(op);
 			memcpy(args[0], op, min(sizeof(args[0]) - 1, strlen(op)));
-			int argtype[3];
+			int argtype[2];
 			argtype[0] = GetArgType(op);
 
 			op = tokenize(0, WHITE);
@@ -114,8 +108,6 @@ tmpTextOut.size();
 				}else if(argtype[1] == TYPE_Register) {
 					tmpTextOut.push_back(SUBCODE(SC_REG, SC_REG));
 					OutputSplitRegister(args[0], op, tmpTextOut);
-					//OutputRegister(args[0], tmpTextOut);
-					//OutputRegister(op, tmpTextOut);
 				} else if(argtype[1] == TYPE_Address) {
 
 					tmpTextOut.push_back(SUBCODE(SC_REG, GetAddrType(op)));
@@ -165,7 +157,7 @@ tmpTextOut.size();
 			switch(GetArgType(op))
 			{
 			case TYPE_Register:
-				tmpTextOut.push_back(SC_REG);
+				tmpTextOut.push_back(SUBCODE(SC_REG, SC_NONE));
 				OutputRegister(op, tmpTextOut);
 				break;
 			case TYPE_Address:
@@ -180,9 +172,9 @@ tmpTextOut.size();
 			invalidCode += OutputOneArg(op, tmpTextOut, textout.size(), lineNumber);
 		} else IFOP("test") {
 			tmpTextOut.push_back(TEST_OP);
-			op = tokenize(0, WHITE);
-			TO_LOWER(op);
+
 			char args[2][64];
+
 			memset(args[0], 0, sizeof(args[0]));
 
 			op = tokenize(0, WHITE);
@@ -194,6 +186,7 @@ tmpTextOut.size();
 			op = tokenize(0, WHITE);
 			TO_LOWER(op);
 			argtype[1] = GetArgType(op);
+
 			if(argtype[0] == TYPE_Register) { // mov ? -> reg
 				if (argtype[1] == TYPE_Constant) { //? = const
 					tmpTextOut.push_back(SUBCODE(SC_REG, SC_CONST));
@@ -208,8 +201,6 @@ tmpTextOut.size();
 				}else if(argtype[1] == TYPE_Register) {
 					tmpTextOut.push_back(SUBCODE(SC_REG, SC_REG));
 					OutputSplitRegister(args[0], op, tmpTextOut);
-					//OutputRegister(args[0], tmpTextOut);
-					//OutputRegister(op, tmpTextOut);
 				} else if(argtype[1] == TYPE_Address) {
 					tmpTextOut.push_back(SUBCODE(SC_REG, GetAddrType(op)));
 					OutputRegister(args[0], tmpTextOut);
@@ -268,9 +259,9 @@ tmpTextOut.size();
 					if (op[j] == '\\') {
 						if(op[j + 1] == 'n') {
 							op[j] = '\n';
-							j++;
+							++j;
 							strcpy(&op[j], &op[j + 1]);
-							len--;
+							--len;
 						}
 					}
 				}
