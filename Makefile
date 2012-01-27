@@ -31,4 +31,4 @@ clean:
 	find . \( -iname "*.o" -o -iname "*.d" \) -exec rm {} \;
 
 cppcheck:
-	cppcheck . --enable=all --xml 2>cppcheck-results.xml
+	cppcheck . --enable=all --xml 2>cppcheck-results.xml -I include
