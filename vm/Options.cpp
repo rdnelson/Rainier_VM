@@ -8,6 +8,7 @@
 #include "Options.h"
 #include <string>
 #include <stdio.h>
+#include <cstring>
 
 Options::Options(int argc, char* argv[]) {
 	// TODO Auto-generated constructor stub
