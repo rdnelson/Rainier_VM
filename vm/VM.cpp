@@ -99,13 +99,13 @@ void VM::Execute()
 
 	EIP = mHeader.entry_pos;
 	Opcode op;
-	int retVal;
+	int retVal, retCode;
 	do
 	{
 		std::cerr << "----------------------------------------------------" << std::endl;
 		std::cerr << "Reading opcode" << std::endl;
 		op = ReadOpcode();
-		retVal = ExecuteOpcode(op);
+		retVal = ExecuteOpcode(op, &retCode);
 	} while( !retVal );
 
 }
@@ -122,11 +122,11 @@ Opcode VM::ReadOpcode()
 	return tmp;
 }
 
-int VM::ExecuteOpcode (Opcode &op)
+int VM::ExecuteOpcode (Opcode &op, int * retCode)
 {
 	if (!op.isValid)
 		return -3;
-	int ret = 0;
+	//int ret = 0;
 	std::cerr << "Executing opcode: " << (int) op.opcode << std::endl;
 	op.printop();
 	switch(op.opcode)
@@ -171,6 +171,21 @@ int VM::ExecuteOpcode (Opcode &op)
 			break;
 		}
 		mStack.pop();
+		break;
+	case AND_OP:
+		ResolveOpcodeArg(op,0);
+		EAX &= op.args[0];
+		break;
+	case OR_OP:
+		ResolveOpcodeArg(op,0);
+		EAX |= op.args[0];
+		break;
+	case XOR_OP:
+		ResolveOpcodeArg(op,0);
+		EAX ^= op.args[0];
+		break;
+	case NOT_OP:
+		EAX = ~EAX;
 		break;
 	case TEST_OP:
 		ResolveOpcodeArg(op,0);
@@ -257,9 +272,9 @@ int VM::ExecuteOpcode (Opcode &op)
 		}
 		break;
 	case SYSCALL_OP:
-		ret = Syscall();
-		if(ret)
-			return ret;
+		if(retCode)
+			*retCode = Syscall();
+		return -1;
 		break;
 
 	case LOOP_OP: //loop
@@ -276,6 +291,7 @@ int VM::ExecuteOpcode (Opcode &op)
 
 int VM::Syscall()
 {
+	std::cerr << "Syscall made: executing command 0x" << std::hex << (int)EAX << std::dec << std::endl;
 	switch(EAX)
 	{
 	case 0x00: //exit

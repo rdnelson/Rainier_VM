@@ -43,7 +43,7 @@ public:
 	void Execute();
 
 	Opcode ReadOpcode();
-	int ExecuteOpcode(Opcode & op);
+	int ExecuteOpcode(Opcode & op, int * retCode);
 	int Syscall();
 
 	friend class Utilities;
