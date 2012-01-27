@@ -79,8 +79,9 @@ static char OP_ArgNum[] = {
 };
 
 enum Subcode {
-	SC_REG,
+	SC_NONE,
 	SC_CONST,
+	SC_REG,
 	SC_CONST_ADD,
 	SC_EBX,
 	SC_EBX_P_EAX,
@@ -103,12 +104,12 @@ struct Opcode {
 	unsigned int args[2];
 	unsigned char argtype[2];
 
-void printop()
-{
-	std::cerr << "Opcode: " << std::hex << opcode << "\nSubcode: " << subcode << "\nIsValid: " << isValid << std::dec << std::endl;
-	for(int i = 0; i < 2; i++)
-		std::cerr << "Arg" << i << std::hex << ": 0x" << args[i] << std::dec << "	Type: " << argtype[i] << std::endl;
-}
+	void printop()
+	{
+		std::cerr << "Opcode: " << std::hex << (int)opcode << "\nSubcode: " << (int)subcode << "\nIsValid: " << (int)isValid << std::dec << std::endl;
+		for(int i = 0; i < 2; i++)
+			std::cerr << "Arg" << i << std::hex << ": 0x" << args[i] << std::dec << "	Type: " << (int)argtype[i] << std::endl;
+	}
 };
 
 #endif
