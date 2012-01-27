@@ -69,7 +69,6 @@ void ParseFile(std::ifstream &fin, std::ofstream &fout)
 		tmpTextOut = "";
 		fin.getline(line,sizeof(line) - 1);
 		lineNumber++;
-		retcode = i = 0;
 
 		op = tokenize(line, WHITE);
 		if(op == 0)
