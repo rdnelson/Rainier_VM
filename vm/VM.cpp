@@ -34,7 +34,7 @@ void VM::run()
 	if (!mReady)
 		return;
 	std::cerr << "Still running" << std::endl;
-	std::ifstream fin(mOpts->GetExe().c_str());
+	std::ifstream fin(mOpts->GetExe().c_str(), std::ios::binary);
 	if(!fin) {
 		mReady = false;
 		return;
@@ -114,9 +114,7 @@ Opcode VM::ReadOpcode()
 {
 	Opcode tmp;
 	tmp.isValid = 1;
-	int v = EIP;
-	//tmp.opcode = mText[v];
-	//EIP++;
+
 	load_byte(tmp.opcode);
 	std::cerr << "Opcode:" << (int)tmp.opcode << std::endl;
 
@@ -175,19 +173,18 @@ int VM::ExecuteOpcode (Opcode &op)
 		mStack.pop();
 		break;
 	case TEST_OP:
-		if (op.args[0] < NUM_REGISTERS && op.args[1] < NUM_REGISTERS) {
-			if(registers[op.args[0]] == registers[op.args[1]]) {
-				mFlags |= FLAG_EQUALS;
-				mFlags &= ~FLAG_GREATER;
-			} else if(registers[op.args[0]] > registers[op.args[1]]) {
-				mFlags |= FLAG_GREATER;
-				mFlags &= ~FLAG_EQUALS;
-			} else {
-				mFlags &= ~(FLAG_GREATER | FLAG_EQUALS);
-			}
+		ResolveOpcodeArg(op,0);
+		ResolveOpcodeArg(op,1);
+
+		if (op.args[0] < op.args[1] ) {
+			mFlags &= ~FLAG_EQUALS;
+			mFlags &= ~FLAG_GREATER;
+		} else if(op.args[0] > op.args[1] ) {
+			mFlags &= ~FLAG_EQUALS;
+			mFlags |= FLAG_GREATER;
 		} else {
-			std::cerr << "Invalid Register(s): 1: " << op.args[0] << "	2: " << op.args[1] << std::endl;
-			return -1;
+			mFlags |= FLAG_EQUALS;
+			mFlags &= ~FLAG_GREATER;
 		}
 		break;
 	case JMP_OP:
@@ -196,6 +193,16 @@ int VM::ExecuteOpcode (Opcode &op)
 			EIP = op.args[0];
 		} else {
 			std::cerr << "Access Denied: Tried to execute beyond program scope" << std::endl;
+			return -2;
+		}
+		break;
+	case JE_OP:
+		ResolveOpcodeArg(op, 0);
+		if (op.args[0] < mHeader.text_size) {
+			if ((mFlags & FLAG_EQUALS))
+				EIP = op.args[0];
+		} else {
+			std::cerr << "Access Denied: Tried to execute beyone program scope" << std::endl;
 			return -2;
 		}
 		break;
