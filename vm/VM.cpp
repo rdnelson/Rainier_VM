@@ -202,7 +202,57 @@ int VM::ExecuteOpcode (Opcode &op)
 			if ((mFlags & FLAG_EQUALS))
 				EIP = op.args[0];
 		} else {
-			std::cerr << "Access Denied: Tried to execute beyone program scope" << std::endl;
+			std::cerr << "Access Denied: Tried to execute beyond program scope" << std::endl;
+			return -2;
+		}
+		break;
+	case JNE_OP:
+		ResolveOpcodeArg(op, 0);
+		if (op.args[0] < mHeader.text_size) {
+			if (!(mFlags & FLAG_EQUALS))
+				EIP = op.args[0];
+		} else {
+			std::cerr << "Access Denied: Tried to execute beyond program scope" << std::endl;
+			return -2;
+		}
+		break;
+	case JGT_OP:
+		ResolveOpcodeArg(op, 0);
+		if(op.args[0] < mHeader.text_size) {
+			if (mFlags & FLAG_GREATER)
+				EIP = op.args[0];
+		} else {
+			std::cerr << "Access Denied: Tried to execute beyond program scope" << std::endl;
+			return -2;
+		}
+		break;
+	case JLT_OP:
+		ResolveOpcodeArg(op, 0);
+		if(op.args[0] < mHeader.text_size) {
+			if (!(mFlags & FLAG_GREATER))
+				EIP = op.args[0];
+		} else {
+			std::cerr << "Access Denied: Tried to execute beyond program scope" << std::endl;
+			return -2;
+		}
+		break;
+	case JGE_OP:
+		ResolveOpcodeArg(op, 0);
+		if(op.args[0] < mHeader.text_size) {
+			if (mFlags & (FLAG_GREATER | FLAG_EQUALS))
+				EIP = op.args[0];
+		} else {
+			std::cerr << "Access Denied: Tried to execute beyond program scope" << std::endl;
+			return -2;
+		}
+		break;
+	case JLE_OP:
+		ResolveOpcodeArg(op, 0);
+		if(op.args[0] < mHeader.text_size) {
+			if (!(mFlags & (FLAG_GREATER | FLAG_EQUALS)))
+				EIP = op.args[0];
+		} else {
+			std::cerr << "Access Denied: Tried to execute beyond program scope" << std::endl;
 			return -2;
 		}
 		break;
