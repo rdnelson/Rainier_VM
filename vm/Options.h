@@ -13,16 +13,18 @@
 class Options {
 public:
 	Options(int argc, char* argv[]);
-	virtual ~Options();
+	~Options();
 
 	inline bool IsValid() { return mValid; }
 	inline bool IsVerbose() { return mVerbose; }
+	inline bool IsStepping() { return mStep; }
 
 	inline std::string GetExe() { return mExe; }
 
 private:
 	bool mValid;
 	bool mVerbose;
+	bool mStep;
 	std::string mExe;
 };
 

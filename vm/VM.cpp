@@ -91,6 +91,17 @@ void VM::run()
 
 }
 
+void VM::dump()
+{
+	for(int i = 0; i < NUM_REGISTERS; i++) {
+		std::cerr << STR_Registers[i] << ": 0x" << std::hex << registers[i] << std::dec;
+		if (i % 2)
+			std::cerr << "	";
+		else
+			std::cerr << std::endl;
+	}
+}
+
 void VM::Execute()
 {
 	std::cerr << "Beginning execution" << std::endl;
@@ -105,7 +116,13 @@ void VM::Execute()
 		std::cerr << "----------------------------------------------------" << std::endl;
 		std::cerr << "Reading opcode" << std::endl;
 		op = ReadOpcode();
+		std::cerr << "----------------------------------------------------" << std::endl;
 		retVal = ExecuteOpcode(op, &retCode);
+		std::cerr << "++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
+		dump();
+		std::cerr << "++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
+		if(mOpts->IsStepping())
+			std::cin.get();
 	} while( !retVal );
 
 }
@@ -116,9 +133,11 @@ Opcode VM::ReadOpcode()
 	tmp.isValid = 1;
 
 	load_byte(tmp.opcode);
-	std::cerr << "Opcode:" << (int)tmp.opcode << std::endl;
+	std::cerr << "Opcode: 0x" << std::hex << (int)tmp.opcode << std::dec << std::endl;
 
 	Utilities::LoadOpcodeArgs(&tmp, mText, registers);
+
+	std::cerr << "Subcode: 0x" << std::hex << (int)tmp.subcode << std::dec << std::endl;
 	return tmp;
 }
 
@@ -127,30 +146,63 @@ int VM::ExecuteOpcode (Opcode &op, int * retCode)
 	if (!op.isValid)
 		return -3;
 	//int ret = 0;
-	std::cerr << "Executing opcode: " << (int) op.opcode << std::endl;
+	//std::cerr << "Executing opcode: " << (int) op.opcode << std::endl;
 	op.printop();
 	switch(op.opcode)
 	{
 	case MOV_OP: //mov
-		std::cerr << "Executing Mov" << std::endl;
+	case MOVB_OP:
+		//std::cerr << "Executing Mov" << std::endl;
 		ResolveOpcodeArg(op, 1);
 		switch(op.argtype[0])
 		{
 		case TYPE_Register:
-			std::cerr << "Assigning " << STR_Registers[op.args[0]] << " = " << op.args[1] << std::endl;
+			//std::cerr << "Assigning " << STR_Registers[op.args[0]] << " = " << op.args[1] << std::endl;
 			op.printop();
-			registers[op.args[0]] = op.args[1];
-			break;
-		case TYPE_Address:
-			mData[op.args[0]] = op.args[1];
+			if(op.opcode == MOV_OP)
+				registers[op.args[0]] = op.args[1];
+			else if (op.opcode == MOVB_OP)
+				registers[op.args[0]] = op.args[1] & 0xFF;
 			break;
 		case TYPE_Def_Address:
 			ResolveOpcodeArg(op, 0);
-			mData[op.args[0]] = op.args[1];
+		case TYPE_Address:
+			if(op.opcode == MOV_OP)
+				memcpy(&mData[op.args[0]], &op.args[1], 4);
+			else if(op.opcode == MOVB_OP)
+				memcpy(&mData[op.args[0]], &op.args[1], 1);
 			break;
 		default:
 			std::cerr << "Invalid Mov operation" << std::endl;
 		}
+		break;
+	case ADD_OP:
+		ResolveOpcodeArg(op, 1);
+		if(op.args[0] < NUM_REGISTERS)
+			registers[op.args[0]] += op.args[1];
+		break;
+	case SUB_OP:
+		ResolveOpcodeArg(op, 1);
+		if(op.args[0] < NUM_REGISTERS)
+			registers[op.args[0]] -= op.args[1];
+		break;
+	case MUL_OP:
+		ResolveOpcodeArg(op, 1);
+		if(op.args[0] < NUM_REGISTERS)
+			registers[op.args[0]] *= op.args[0];
+		break;
+	case DIV_OP:
+		ResolveOpcodeArg(op, 1);
+		if(op.args[0] < NUM_REGISTERS)
+			registers[op.args[0]] /= op.args[0];
+		break;
+	case SHR_OP:
+		ResolveOpcodeArg(op, 0);
+		EAX >>= op.args[0];
+		break;
+	case SHL_OP:
+		ResolveOpcodeArg(op, 0);
+		EAX <<= op.args[0];
 		break;
 	case PUSH_OP:
 		ResolveOpcodeArg(op,0);
@@ -173,19 +225,23 @@ int VM::ExecuteOpcode (Opcode &op, int * retCode)
 		mStack.pop();
 		break;
 	case AND_OP:
-		ResolveOpcodeArg(op,0);
-		EAX &= op.args[0];
+		ResolveOpcodeArg(op,1);
+		if(op.args[0] < NUM_REGISTERS)
+			registers[op.args[0]] &= op.args[1];
 		break;
 	case OR_OP:
-		ResolveOpcodeArg(op,0);
-		EAX |= op.args[0];
+		ResolveOpcodeArg(op,1);
+		if(op.args[0] < NUM_REGISTERS)
+			registers[op.args[0]] |= op.args[1];
 		break;
 	case XOR_OP:
-		ResolveOpcodeArg(op,0);
-		EAX ^= op.args[0];
+		ResolveOpcodeArg(op,1);
+		if(op.args[0] < NUM_REGISTERS)
+			registers[op.args[0]] ^= op.args[1];
 		break;
 	case NOT_OP:
-		EAX = ~EAX;
+		if(op.args[0] < NUM_REGISTERS)
+			registers[op.args[0]] = ~registers[op.args[0]];
 		break;
 	case TEST_OP:
 		ResolveOpcodeArg(op,0);
@@ -347,25 +403,25 @@ void VM::ResolveOpcodeArg(Opcode &op, unsigned int arg)
 		memcpy(&op.args[arg], &mData[op.args[arg]], sizeof(op.args[arg]));
 		break;
 	case SC_EBX:
-		op.args[arg] = EBX;
+		op.args[arg] = mData[EBX];
 		break;
 	case SC_EBX_P_EAX:
-		op.args[arg] = EBX + EAX;
+		op.args[arg] = mData[EBX + EAX];
 		break;
 	case SC_EBX_M_EAX:
-		op.args[arg] = EBX - EAX;
+		op.args[arg] = mData[EBX - EAX];
 		break;
 	case SC_CONST_P_EAX:
-		op.args[arg] = op.args[arg] + EAX;
+		op.args[arg] = mData[op.args[arg] + EAX];
 		break;
 	case SC_CONST_M_EAX:
-		op.args[arg] = op.args[arg] - EAX;
+		op.args[arg] = mData[op.args[arg] - EAX];
 		break;
 	case SC_EBX_P_CONST:
-		op.args[arg] = EBX + op.args[arg];
+		op.args[arg] = mData[EBX + op.args[arg]];
 		break;
 	case SC_EBX_M_CONST:
-		op.args[arg] = EBX - op.args[arg];
+		op.args[arg] = mData[EBX - op.args[arg]];
 		break;
 	default:
 		std::cerr << "Invalid subcode: " << SUBCODE_N(arg, op.subcode) << std::endl;

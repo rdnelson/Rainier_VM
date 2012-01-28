@@ -8,6 +8,7 @@
 #include "common/Registers.h"
 #include "Output.h"
 #include "Utilities.h"
+#include "Instruction.h"
 
 #define min(a,b) (a > b ? b : a)
 
@@ -69,6 +70,7 @@ void ParseFile(std::ifstream &fin, std::ofstream &fout)
 		tmpTextOut = "";
 		fin.getline(line,sizeof(line) - 1);
 		lineNumber++;
+		Instruction * t = Instruction::CreateInstruction(line);
 
 		op = tokenize(line, WHITE);
 		if(op == 0)
@@ -76,8 +78,11 @@ void ParseFile(std::ifstream &fin, std::ofstream &fout)
 
 		TO_LOWER(op);
 
-		IFOP("mov") {
-			tmpTextOut.push_back(MOV_OP);
+		if(!strcmp(op, "mov") || !strcmp(op, "movb")) {
+			IFOP("mov")
+				tmpTextOut.push_back(MOV_OP);
+			else IFOP("movb")
+				tmpTextOut.push_back(MOVB_OP);
 
 			char args[2][64];
 
@@ -131,16 +136,16 @@ void ParseFile(std::ifstream &fin, std::ofstream &fout)
 			tmpTextOut.push_back(NOP_OP);
 		} else IFOP("add") {
 			tmpTextOut.push_back(ADD_OP);
-			invalidCode += OutputOneArg(op, tmpTextOut, textout.size(), lineNumber);
+			invalidCode += OutputRegFirst(op, tmpTextOut, textout.size(), lineNumber);
 		} else IFOP("sub") {
 			tmpTextOut.push_back(SUB_OP);
-			invalidCode += OutputOneArg(op, tmpTextOut, textout.size(), lineNumber);
+			invalidCode += OutputRegFirst(op, tmpTextOut, textout.size(), lineNumber);
 		} else IFOP("mul") {
 			tmpTextOut.push_back(MUL_OP);
-			invalidCode += OutputOneArg(op, tmpTextOut, textout.size(), lineNumber);
+			invalidCode += OutputRegFirst(op, tmpTextOut, textout.size(), lineNumber);
 		} else IFOP("div") {
 			tmpTextOut.push_back(DIV_OP);
-			invalidCode += OutputOneArg(op, tmpTextOut, textout.size(), lineNumber);
+			invalidCode += OutputRegFirst(op, tmpTextOut, textout.size(), lineNumber);
 		} else IFOP("shr") {
 			tmpTextOut.push_back(SHR_OP);
 			invalidCode += OutputOneArg(op, tmpTextOut, textout.size(), lineNumber);
@@ -212,15 +217,19 @@ void ParseFile(std::ifstream &fin, std::ofstream &fout)
 			}
 		} else IFOP("and") {
 			tmpTextOut.push_back(AND_OP);
-			invalidCode += OutputOneArg(op, tmpTextOut, textout.size(), lineNumber);
+			invalidCode += OutputRegFirst(op, tmpTextOut, textout.size(), lineNumber);
 		} else IFOP("or") {
 			tmpTextOut.push_back(OR_OP);
-			invalidCode += OutputOneArg(op, tmpTextOut, textout.size(), lineNumber);
+			invalidCode += OutputRegFirst(op, tmpTextOut, textout.size(), lineNumber);
 		} else IFOP("xor") {
 			tmpTextOut.push_back(XOR_OP);
-			invalidCode += OutputOneArg(op, tmpTextOut, textout.size(), lineNumber);
+			invalidCode += OutputRegFirst(op, tmpTextOut, textout.size(), lineNumber);
 		} else IFOP("not") {
 			tmpTextOut.push_back(NOT_OP);
+			tmpTextOut.push_back(SUBCODE(SC_REG, SC_NONE));
+			op = tokenize(0, WHITE);
+			TO_LOWER(op);
+			OutputRegister(op, tmpTextOut);
 		} else IFOP("loop") {
 			tmpTextOut.push_back(LOOP_OP);
 			invalidCode += OutputOneArg(op, tmpTextOut, textout.size(), lineNumber);
