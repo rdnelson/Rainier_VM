@@ -152,6 +152,30 @@ int VM::ExecuteOpcode (Opcode &op, int * retCode)
 			std::cerr << "Invalid Mov operation" << std::endl;
 		}
 		break;
+	case ADD_OP:
+		ResolveOpcodeArg(op, 0);
+		EAX += op.args[0];
+		break;
+	case SUB_OP:
+		ResolveOpcodeArg(op, 0);
+		EAX -= op.args[0];
+		break;
+	case MUL_OP:
+		ResolveOpcodeArg(op, 0);
+		EAX *= op.args[0];
+		break;
+	case DIV_OP:
+		ResolveOpcodeArg(op, 0);
+		EAX /= op.args[0];
+		break;
+	case SHR_OP:
+		ResolveOpcodeArg(op, 0);
+		EAX >>= op.args[0];
+		break;
+	case SHL_OP:
+		ResolveOpcodeArg(op, 0);
+		EAX <<= op.args[0];
+		break;
 	case PUSH_OP:
 		ResolveOpcodeArg(op,0);
 		mStack.push(op.args[0]);
