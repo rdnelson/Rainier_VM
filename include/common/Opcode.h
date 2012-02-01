@@ -46,7 +46,8 @@ enum Opcodes {
 	JGE_OP,
 	JLT_OP,
 	JLE_OP,
-	SYSCALL_OP
+	SYSCALL_OP,
+	MOVB_OP,
 };
 
 enum Subcode {
@@ -77,9 +78,11 @@ struct Opcode {
 
 	void printop()
 	{
-		std::cerr << "Opcode: " << std::hex << (int)opcode << "\nSubcode: " << (int)subcode << "\nIsValid: " << (int)isValid << std::dec << std::endl;
-		for(int i = 0; i < 2; i++)
-			std::cerr << "Arg" << i << std::hex << ": 0x" << args[i] << std::dec << "	Type: " << (int)argtype[i] << std::endl;
+		if(!isValid) {
+			std::cerr << "Opcode: 0x" << std::hex << (int)opcode << "\nSubcode: " << (int)subcode << "\nIsValid: " << (int)isValid << std::dec << std::endl;
+			for(int i = 0; i < 2; i++)
+				std::cerr << "Arg" << i << std::hex << ": 0x" << args[i] << std::dec << "	Type: " << (int)argtype[i] << std::endl;
+		}
 	}
 };
 
@@ -90,19 +93,19 @@ struct Opcode {
 static char OP_ArgNum[] = {
 	0,
 	2,
-	1,
-	1,
-	1,
-	1,
+	2,
+	2,
+	2,
+	2,
 	1,
 	1,
 	1,
 	1,
 	1,
 	2,
-	1,
-	1,
-	1,
+	2,
+	2,
+	2,
 	0,
 	1,
 	1,
@@ -111,9 +114,8 @@ static char OP_ArgNum[] = {
 	1,
 	1,
 	1,
-	1,
-	1,
-	0
+	0,
+	2,
 };
 
 #endif

@@ -11,6 +11,8 @@ void OutputConstant(unsigned int val, std::string &asmout);
 void OutputId(char *op, std::string &asmout);
 void OutputAddress(char *op, std::string &asmout);
 int OutputOneArg(char *op, std::string &asmout, unsigned int textpos, unsigned int lineNumber);
+int OutputRegFirst(char *op, std::string &asmout, unsigned int textpos, unsigned int lineNumber);
+
 
 struct unknown {
 	unsigned int lineNumber;

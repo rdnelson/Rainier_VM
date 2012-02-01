@@ -1,6 +1,7 @@
 ds Error "There has been an error somewhere!\n"
 ds Success "No errors occured during execution\n"
-mov eax 1
+mov eax 0
+add eax 1
 and 5
 mov edx 2
 or edx

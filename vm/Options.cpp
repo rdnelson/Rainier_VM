@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include <cstring>
 
-Options::Options(int argc, char* argv[]) {
+Options::Options(int argc, char* argv[]) : mValid(false), mVerbose(false), mStep(false) {
 	// TODO Auto-generated constructor stub
 	if( argc == 1)
 	{
@@ -18,15 +18,16 @@ Options::Options(int argc, char* argv[]) {
 		return;
 	}
 
-	int exeIndex = 1;
-	if(!strcmp(argv[exeIndex], "-v")) {
-		mVerbose = true;
-		exeIndex++;
-	}
-	else
-		mVerbose = false;
+	for(int i = 1; i < argc - 1; ++i) {
 
-	mExe = argv[exeIndex];
+		if(!strcmp(argv[i], "-v")) {
+			mVerbose = true;
+		} else if (!strcmp(argv[i], "--step")) {
+			mStep = true;
+		}
+	}
+
+	mExe = argv[argc - 1];
 
 
 	FILE* tmpFile = fopen(mExe.c_str(), "r");

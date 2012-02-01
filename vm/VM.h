@@ -50,6 +50,7 @@ public:
 
 private:
 
+	void dump();
 	int GetOpcodeData(const unsigned int type, const unsigned int val, unsigned int &data);
 	void ResolveOpcodeArg(Opcode &op, unsigned int arg);
 	bool mReady;

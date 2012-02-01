@@ -19,14 +19,14 @@ char* Utilities::LoadString(VM* vm, unsigned int address)
 	memcpy((char*)&strLength, vm->mData + address, sizeof(strLength));
 	char* str = new char[strLength+1];
 	memset(str, 0, strLength + 1);
-	std::cerr << "Length: " << strLength << std::endl;
+	//std::cerr << "Length: " << strLength << std::endl;
 	memcpy(str, vm->mData + address + sizeof(strLength), strLength);
 	return str;
 }
 
 int Utilities::GetArgType(int n, char subcode)
 {
-	std::cerr << "GetArgType:: subcode: " << (int)subcode << " subcode_n: " << (int)SUBCODE_N(n, subcode) << std::endl;
+	std::cerr << "GetArgType:: subcode: 0x" << std::hex << (int)subcode << " subcode_n: " << (int)SUBCODE_N(n, subcode) << std::dec << std::endl;
 	switch(SUBCODE_N(n, subcode))
 	{
 	case SC_CONST:
@@ -53,7 +53,7 @@ int Utilities::GetArgType(int n, char subcode)
 
 void Utilities::LoadOpcodeArgs(Opcode * op, char* mText, unsigned int * registers)
 {
-	std::cerr << "Beginning load, eip = " << registers[REG_EIP] << std::endl;
+	//std::cerr << "Beginning load, eip = " << registers[REG_EIP] << std::endl;
 	switch(op->opcode)
 	{
 	case NOP_OP:
@@ -64,15 +64,17 @@ void Utilities::LoadOpcodeArgs(Opcode * op, char* mText, unsigned int * register
 		load_byte(op->subcode);
 	}
 
-	std::cerr << "Read subcode, eip = " << registers[REG_EIP] << std::endl;
+	//std::cerr << "Read subcode, eip = " << registers[REG_EIP] << std::endl;
 
-	std::cerr << "Subcode: " << std::hex << (int)op->subcode << std::dec << std::endl;
+	//std::cerr << "Subcode: " << std::hex << (int)op->subcode << std::dec << std::endl;
 	if (op->subcode == SUBCODE(SC_REG, SC_REG)) { //split register (only one byte)
 		load_byte(op->args[0]);
 		op->args[1] = op->args[0] & 0xF;
 		op->args[0] >>= 4;
+		op->argtype[0] = TYPE_Register;
+		op->argtype[0] = TYPE_Register;
 	} else {
-
+		std::cerr << "This opcode (0x" << std::hex << (int)op->opcode  <<  std::dec << ") takes " << (int)OP_ArgNum[op->opcode] << "arguments." << std::endl;
 		for(int i = 0; i < OP_ArgNum[op->opcode]; i++) {
 			std::cerr << "Type of arg" << i << ": " << GetArgType(i, op->subcode) << std::endl;
 			op->argtype[i] = GetArgType(i, op->subcode);
@@ -86,11 +88,13 @@ void Utilities::LoadOpcodeArgs(Opcode * op, char* mText, unsigned int * register
 				load_byte(op->args[i]);
 				break;
 			case TYPE_Def_Address:
+				op->args[i] = SUBCODE_N(op->subcode, i);
+				break;
 			case TYPE_None:
 			default:
 				break;
 			}
-			std::cerr << "Finished reading arg" << i + 1 << " it equals " << op->args[i] << " eip = " << registers[REG_EIP] << std::endl;
+			//std::cerr << "Finished reading arg" << i + 1 << " it equals " << op->args[i] << " eip = " << registers[REG_EIP] << std::endl;
 		}
 	}
 }

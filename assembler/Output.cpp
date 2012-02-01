@@ -143,3 +143,41 @@ int OutputOneArg(char *op, std::string &asmout, unsigned int textpos, unsigned i
 	}
 	return 0;
 }
+
+int OutputRegFirst(char *op, std::string &asmout, unsigned int textpos, unsigned int lineNumber)
+{
+	char arg1[64];
+	op = tokenize(0, WHITE);
+	TO_LOWER(op);
+	strcpy(arg1,op);
+
+	int arg1type = GetArgType(op);
+	int arg2type;
+	std::cerr << "Opcode: " << op << " first argument is type: " << arg1type << std::endl;
+	if (arg1type == TYPE_Register) {
+		op = tokenize(0, WHITE);
+		TO_LOWER(op);
+		arg2type = GetArgType(op);
+		switch(arg2type)
+		{
+		case TYPE_Constant:
+			asmout.push_back(SUBCODE(SC_REG, SC_CONST));
+			OutputRegister(arg1, asmout);
+			OutputConstant(op, asmout);
+			break;
+		case TYPE_Register:
+			asmout.push_back(SUBCODE(SC_REG, SC_REG));
+			OutputSplitRegister(arg1, op, asmout);
+			break;
+		case TYPE_Address:
+			asmout.push_back(SUBCODE(SC_REG, GetAddrType(op)));
+			OutputRegister(arg1, asmout);
+			OutputAddress(op, asmout);
+			break;
+		}
+	} else {
+		std::cerr << "Error: first arg must be register" << std::endl;
+		return 1;
+	}
+	return 0;
+}
