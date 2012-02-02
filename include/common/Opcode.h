@@ -23,7 +23,11 @@ enum ArgTypes {
 };
 
 enum Opcodes {
-	NOP_OP,
+	//assembler only commands
+	DS_OP = -255,
+
+	//universal commands
+	NOP_OP = 0,
 	MOV_OP,
 	ADD_OP,
 	SUB_OP,
@@ -48,6 +52,7 @@ enum Opcodes {
 	JLE_OP,
 	SYSCALL_OP,
 	MOVB_OP,
+	NUM_OPCODES
 };
 
 enum Subcode {
@@ -116,6 +121,38 @@ static char OP_ArgNum[] = {
 	1,
 	0,
 	2,
+};
+
+#endif
+
+#ifdef OP_STRINGS
+
+static char* STR_Opcodes[] = {
+	"nop",
+	"mov",
+	"add",
+	"sub",
+	"mul",
+	"div",
+	"shr",
+	"shl",
+	"push",
+	"pop",
+	"jmp",
+	"test",
+	"and",
+	"or",
+	"xor",
+	"not",
+	"loop",
+	"je",
+	"jne",
+	"jgt",
+	"jge",
+	"jlt",
+	"jle",
+	"sys",
+	"movb",
 };
 
 #endif

@@ -8,6 +8,7 @@
 #include "common/Registers.h"
 #include "Output.h"
 #include "Utilities.h"
+#include "Instruction.h"
 
 #define min(a,b) (a > b ? b : a)
 
@@ -69,6 +70,7 @@ void ParseFile(std::ifstream &fin, std::ofstream &fout)
 		tmpTextOut = "";
 		fin.getline(line,sizeof(line) - 1);
 		lineNumber++;
+		Instruction * t = Instruction::CreateInstruction(line);
 
 		op = tokenize(line, WHITE);
 		if(op == 0)

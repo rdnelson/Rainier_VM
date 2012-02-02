@@ -2,8 +2,17 @@
 
 #include <cctype>
 #include "common/Opcode.h"
+#include "common/Registers.h"
+
+Argument::Argument() : mType(SC_NONE), mVal(0), mText("")
+{
+}
 
 Argument::Argument(std::string & arg) : mType(SC_NONE), mVal(0), mText(arg)
+{
+	Init(arg);
+}
+void Argument::Init(std::string & arg)
 {
 	//first parse it into standard form (lcase, no whitespace)
 
@@ -13,7 +22,7 @@ Argument::Argument(std::string & arg) : mType(SC_NONE), mVal(0), mText(arg)
 	}
 
 	if (mText == "")
-		return
+		return;
 
 	//check if the argument is a register
 	for(i = 0; i < NUM_REGISTERS; i++) {
@@ -41,18 +50,32 @@ Argument::Argument(std::string & arg) : mType(SC_NONE), mVal(0), mText(arg)
 	//check if the argument is a hex constant
 	if(mText.size() >= 3) {
 		if(mText[0] == '0' && mText[1] == 'x') {
-			for(i = 2; i < mText.size(); ++i) {
-				if( //TODO: finish
+			//for(i = 2; i < mText.size(); ++i) {
+			//	if( //TODO: finish
+			mType = SC_CONST;
+			mVal = 0xDEAFBEEF;
+			return;
+		}
+	}
 
 	//check if the argument is a constant
 	bool valid = true;
 	for(i = 0; i < mText.size(); ++i) {
-		if(!std::isdigit(mText[i])
+		if(!std::isdigit(mText[i])) {
+			valid = false;
+			break;
+		}	
+	}
+	if (valid) {
+		mType = SC_CONST;
+		mVal = atoi(mText.c_str());
+		return;
+	}
 }
 
 bool Argument::IsData()
 {
-	if(mType == SC_CONST || mType == SC_ADD)
+	if(mType == SC_CONST)
 		return true;
 
 	return false;
@@ -60,4 +83,5 @@ bool Argument::IsData()
 
 bool Argument::IsRegister()
 {
-	if(mType
+	return false;
+}
