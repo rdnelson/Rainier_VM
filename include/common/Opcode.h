@@ -127,7 +127,7 @@ static char OP_ArgNum[] = {
 
 #ifdef OP_STRINGS
 
-static char* STR_Opcodes[] = {
+static const char* STR_Opcodes[] = {
 	"nop",
 	"mov",
 	"add",

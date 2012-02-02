@@ -9,6 +9,7 @@ public:
 	Argument();
 	Argument(std::string & arg);
 
+	void Init();
 	void Init(std::string &arg);
 
 	inline int GetType() { return mType; }
@@ -21,10 +22,21 @@ public:
 
 	std::string & ToBinary();
 
+	enum Internal_Types {
+		ARG_NONE = 0,
+		ARG_VM = 0,
+		ARG_LABEL, //for jump points
+		ARG_DATA, //for data addresses
+		ARG_STRING, //for string constants
+	};
+
+	void Dump();
+
 private:
 
 	void ParseAddress() {}
 	int mType;
+	int mInternalType;
 	int mVal;
 
 	std::string mText;

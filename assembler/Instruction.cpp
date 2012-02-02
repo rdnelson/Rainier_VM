@@ -1,7 +1,5 @@
 #include "Instruction.h"
 
-//#include "SubInstructions.h" //contains includes of all actual instruction subclasses
-
 #define OP_STRINGS
 #define OP_BUILDERS
 #include "common/Opcode.h"
@@ -37,7 +35,6 @@ Instruction* Instruction::CreateInstruction(const std::string & line)
 	else
 		opcode = line.substr(opcodeBegin, opcodeEnd - opcodeBegin);
 
-	
 
 	for(int i = 0; i < NUM_OPCODES; i++) {
 		if(opcode == STR_Opcodes[i]) {
@@ -57,5 +54,9 @@ Instruction* Instruction::CreateInstruction(const std::string & line)
 
 void Instruction::ParseArguments()
 {
+	int tokenBegin = 0, tokenEnd = 0;
+	std::string token("");
+
+	
 
 }
