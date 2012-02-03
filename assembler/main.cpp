@@ -71,6 +71,13 @@ void ParseFile(std::ifstream &fin, std::ofstream &fout)
 		fin.getline(line,sizeof(line) - 1);
 		lineNumber++;
 		Instruction * t = Instruction::CreateInstruction(line);
+		if(t) {
+			t->ParseArguments();
+			std::string temp = t->ToBinary();
+		} else {
+			std::cerr << "Error in instruction.cpp on line: " << line << std::endl;
+		}
+		
 
 		op = tokenize(line, WHITE);
 		if(op == 0)
@@ -289,7 +296,9 @@ void ParseFile(std::ifstream &fin, std::ofstream &fout)
 			}
 		}
 
+
 		textout += tmpTextOut;
+		delete t;
 	} 
 
 	for(Label i = unknownLabels.begin(); i != unknownLabels.end(); i++) {

@@ -7,13 +7,21 @@
 #include "common/Opcode.h"
 #include "common/Registers.h"
 
-Argument::Argument() : mType(SC_NONE), mInternalType(0), mVal(0), mText("")
+#define WHITE " 	"
+
+Argument::Argument() : mType(SC_NONE), mInternalType(0), mVal(0), mText(""), mValid(true)
 {
 }
 
-Argument::Argument(std::string & arg) : mType(SC_NONE), mInternalType(0), mVal(0), mText(arg)
+Argument::Argument(std::string & arg) : mType(SC_NONE), mInternalType(0), mVal(0), mText(arg), mValid(true)
 {
 	Init();
+}
+
+Argument::~Argument()
+{
+	for(int i = 0; i < mSubArguments.size(); ++i)
+		delete mSubArguments[i];
 }
 void Argument::Init(std::string & arg)
 {
@@ -44,6 +52,7 @@ void Argument::Init()
 
 	//check if the argument is an address
 	if (mText[0] == '[' && mText[mText.size() - 1] == ']') {
+		mText = mText.substr(1, mText.size() - 2); // cut off brackets
 		ParseAddress();
 		return;
 	}
@@ -51,19 +60,40 @@ void Argument::Init()
 	//check if the argument is a label
 	if(mText.size() >= 2) {
 		if(mText[0] == ':'){
-			mType = SC_NONE;
+			mType = SC_CONST;
 			mInternalType = ARG_LABEL;
 			mText = mText.substr(1);
 			return;
 		}else if(mText[0] == '@'){
-			mType = SC_NONE;
+			mType = SC_CONST;
 			mInternalType = ARG_DATA;
 			mText = mText.substr(1);
 			return;
-		}else if(mText[0] == '"' && mText[mText.size() - 1 ] == '"') {
+		}else if(mText[0] == '"') {
 			mType = SC_NONE;
 			mInternalType = ARG_STRING;
-			mText = mText.substr(1, mText.size() - 2); // cut off quotes
+
+			if(mText[mText.size() - 1 ] == '"') {	
+				mText = mText.substr(1, mText.size() - 2); // cut off quotes
+				int replace = mText.find("\\n");
+				while(replace != mText.npos) {
+					mText = mText.replace(replace, 2, "\n");
+					replace = mText.find("\\n");
+				}
+				return;
+			}
+		} if (mText.size() == 1) {
+			if(mText[0] == '+' ) {
+				mType = SC_NONE;
+				mInternalType = ARG_PLUS;
+				return;
+			} else if (mText[0] == '-') {
+				mType = SC_NONE;
+				mInternalType = ARG_MINUS;
+				return;
+			}
+		} else {
+			mValid = false;
 			return;
 		}
 	}
@@ -92,18 +122,119 @@ void Argument::Init()
 		mVal = atoi(mText.c_str());
 		return;
 	}
+
+	//it appears to be nothing else, make it a label declaration
+	//it's only valid if it's associated with the right command
+	mType = SC_NONE;
+	mInternalType = ARG_LABEL_DEC;
+
 }
 
-bool Argument::IsData()
+void Argument::ParseAddress()
 {
-	if(mType == SC_CONST)
+	int tokenBegin = 0, tokenEnd = 0;
+	std::string token("");
+
+ 	while(tokenEnd != std::string::npos) {
+		tokenBegin = mText.find_first_not_of(WHITE, tokenEnd); //skip initial whitespace
+		tokenEnd = mText.find_first_of(WHITE, tokenBegin);
+
+		if(tokenBegin == std::string::npos)
+			break;
+
+		if(tokenEnd == std::string::npos)
+			token = mText.substr(tokenBegin);
+		else
+			token = mText.substr(tokenBegin, tokenEnd - tokenBegin);
+
+		mSubArguments.push_back(new Argument(token));
+	}
+
+	if(mSubArguments.size() == 1) { //possibilities are SC_CONST_ADD, SC_EBX
+		switch(mSubArguments[0]->GetType()) {
+		case SC_CONST:
+			mType = SC_CONST_ADD;
+			if(mSubArguments[0]->GetInternalType() == ARG_DATA) {
+
+			} else {
+				mVal = mSubArguments[0]->GetVal();
+			}
+			break;
+		case SC_REG:
+			if(mSubArguments[0]->GetVal() == REG_EBX) {
+				mType = SC_EBX;
+				mVal = 0;
+				break;
+			} else {
+				mValid = false; //ebx is the only valid register
+			}
+			break;
+		default:
+			mValid = false;
+			break;
+		}
+	} else if(mSubArguments.size() == 3) { //Operator and two operands
+		if(mSubArguments[1]->GetInternalType() == ARG_PLUS || mSubArguments[1]->GetInternalType() == ARG_MINUS) {
+			switch(mSubArguments[0]->GetType()) {
+			case SC_CONST:
+				//the only two valid choices are const_p_eax and const_m_eax
+				if(mSubArguments[2]->GetType() == SC_REG && mSubArguments[2]->GetVal() == REG_EAX) {
+					
+					mType = (mSubArguments[1]->GetInternalType() == ARG_PLUS) ? SC_CONST_P_EAX : SC_CONST_M_EAX;
+					mVal = mSubArguments[0]->GetVal();
+					break;
+				} else {
+					mValid = false;
+				}
+				break;
+			case SC_REG:
+				//the valid choices are ebx_pm_eax and ebx_pm_const
+				if(mSubArguments[0]->GetType() == SC_REG && mSubArguments[0]->GetVal() == REG_EBX) {
+					if(mSubArguments[2]->GetType() == SC_REG && mSubArguments[2]->GetVal() == REG_EAX) {
+						mType = (mSubArguments[1]->GetInternalType() == ARG_PLUS) ? SC_EBX_P_EAX : SC_EBX_M_EAX;
+						mVal = 0;
+						break;
+					} else if(mSubArguments[2]->GetType() == SC_CONST) {
+						mType = (mSubArguments[1]->GetInternalType() == ARG_PLUS) ? SC_EBX_P_CONST : SC_EBX_M_CONST;
+						mVal = mSubArguments[2]->GetVal();
+						break;
+					} else {
+						mValid = false;
+					}
+				} else {
+					mValid = false;
+				}
+			}
+
+		} else {
+			mValid = false;
+		}
+	}
+}
+
+bool Argument::HasConstant()
+{
+	switch(mType) {
+	case SC_CONST:
+	case SC_CONST_ADD:
+	case SC_CONST_P_EAX:
+	case SC_CONST_M_EAX:
+	case SC_EBX_P_CONST:
+	case SC_EBX_M_CONST:
 		return true;
+		break;
+	}
 
 	return false;
 }
 
-bool Argument::IsRegister()
+bool Argument::HasData()
 {
+	if(mType == SC_NONE) {
+		if(mInternalType == ARG_STRING) {
+			return true;
+		}
+	}
 	return false;
 }
 
@@ -111,4 +242,21 @@ void Argument::Dump()
 {
 	std::cerr << "Type: " << mType << "	Internal Type: " << mInternalType << std::endl;
 	std::cerr << "Value: " << mVal << "	Text: `" << mText << "`" << std::endl;
+}
+
+std::string Argument::ToBinary()
+{
+	std::string retval("");
+
+	if(HasConstant()) {
+		char val[4];
+		memcpy(val, &mVal, 4);
+		retval.append(val, 4);
+	}
+
+	if(mType == SC_REG) {
+		retval.push_back((char)mVal);
+	}
+
+	return retval;
 }

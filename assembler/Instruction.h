@@ -2,27 +2,36 @@
 #define __INSTRUCTION_H__
 
 #include <string>
+#include <vector>
+
 #include "Argument.h"
 
 class Instruction
 {
 public:
+
+	~Instruction();
+
 	static Instruction* CreateInstruction(const std::string & line);
 
 	int GetBinaryLen();
-	std::string & ToBinary();
+	std::string ToBinary();
 
 	inline int GetType() { return mType; }
-	inline std::string& GetLine() { return mLine; }
-
-private:
+	inline std::string GetLine() { return mLine; }
 
 	void ParseArguments();
 
-	Instruction(const std::string & line);
-	virtual ~Instruction();
+	bool IsValid();
 
-	Argument mArgument[2];
+private:
+
+	
+
+	Instruction(const std::string & line);
+	
+
+	std::vector<Argument*> mArguments;
 
 	std::string mLine;
 	int mType;

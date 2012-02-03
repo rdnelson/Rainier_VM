@@ -25,6 +25,7 @@ enum ArgTypes {
 enum Opcodes {
 	//assembler only commands
 	DS_OP = -255,
+	LABEL_OP,
 
 	//universal commands
 	NOP_OP = 0,
@@ -57,14 +58,14 @@ enum Opcodes {
 
 enum Subcode {
 	SC_NONE,
-	SC_CONST,
 	SC_REG,
+	SC_CONST,
 	SC_CONST_ADD,
+	SC_CONST_P_EAX,
+	SC_CONST_M_EAX,
 	SC_EBX,
 	SC_EBX_P_EAX,
 	SC_EBX_M_EAX,
-	SC_CONST_P_EAX,
-	SC_CONST_M_EAX,
 	SC_EBX_P_CONST,
 	SC_EBX_M_CONST, //9
 };
