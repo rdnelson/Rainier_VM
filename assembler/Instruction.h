@@ -2,27 +2,42 @@
 #define __INSTRUCTION_H__
 
 #include <string>
+#include <vector>
+#include <map>
+
 #include "Argument.h"
 
 class Instruction
 {
 public:
+
+	~Instruction();
+
 	static Instruction* CreateInstruction(const std::string & line);
 
 	int GetBinaryLen();
-	std::string & ToBinary();
+	std::string ToBinary();
 
 	inline int GetType() { return mType; }
-	inline std::string& GetLine() { return mLine; }
-
-private:
+	inline std::string GetLine() { return mLine; }
 
 	void ParseArguments();
 
-	Instruction(const std::string & line);
-	virtual ~Instruction();
+	bool IsLabelDef();
+	bool NeedsLabel();
 
-	Argument mArgument[2];
+	std::string GetLabelDefName();
+
+	void SubstituteLabels(std::map<std::string, unsigned int> &labelMap);
+
+	bool IsValid();
+	bool IsText();
+
+private:
+
+	Instruction(const std::string & line);
+
+	std::vector<Argument*> mArguments;
 
 	std::string mLine;
 	int mType;
