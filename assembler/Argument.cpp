@@ -2,6 +2,7 @@
 
 #include <cctype>
 #include <cstdlib>
+#include <cstring>
 #include <iostream>
 
 #include "common/Opcode.h"
@@ -179,7 +180,6 @@ void Argument::ParseAddress()
 			case SC_CONST:
 				//the only two valid choices are const_p_eax and const_m_eax
 				if(mSubArguments[2]->GetType() == SC_REG && mSubArguments[2]->GetVal() == REG_EAX) {
-					
 					mType = (mSubArguments[1]->GetInternalType() == ARG_PLUS) ? SC_CONST_P_EAX : SC_CONST_M_EAX;
 					mVal = mSubArguments[0]->GetVal();
 					break;

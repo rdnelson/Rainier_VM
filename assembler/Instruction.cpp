@@ -1,5 +1,7 @@
 #include "Instruction.h"
 
+#include <cstring>
+
 #define OP_STRINGS
 #define OP_BUILDERS
 #include "common/Opcode.h"
@@ -124,8 +126,70 @@ std::string Instruction::ToBinary()
 	return tmpBinary;
 }
 
+int Instruction::GetBinaryLen()
+{
+	return ToBinary().size();
+}
+
 bool Instruction::IsValid()
 {
 
 	return true;
+}
+
+bool Instruction::IsLabelDef()
+{
+	if(!IsValid())
+		return false;
+
+	if(mType == LABEL_OP)
+		return true;
+
+	for(int i = 0; i < mArguments.size(); i++) {
+		if(mType == DS_OP) {
+			if(mArguments[i]->GetInternalType() == Argument::ARG_LABEL_DEC) {
+				return mArguments.size() == 2;
+			}
+		}
+	}
+	return false;
+}
+
+bool Instruction::NeedsLabel()
+{
+
+	for(int i = 0; i < mArguments.size(); i++) {
+		if (mArguments[i]->GetInternalType() == Argument::ARG_LABEL || mArguments[i]->GetInternalType() == Argument::ARG_DATA) {
+			return true;
+		}
+	}
+	return false;
+}
+
+std::string Instruction::GetLabelDefName()
+{
+	if(!IsLabelDef())
+		return "";
+
+	if(mType == LABEL_OP)
+		return mLine;
+
+	return mArguments[1]->GetText();
+}
+
+void Instruction::SubstituteLabels(std::map<std::string, unsigned int> &labelMap)
+{
+	for(int i = 0; i < mArguments.size(); i++) {
+		if(mArguments[i]->GetInternalType() == Argument::ARG_LABEL || mArguments[i]->GetInternalType() == Argument::ARG_DATA) {
+			if(labelMap.find(mArguments[i]->GetText()) != labelMap.end()) {
+				mArguments[i]->SetVal(labelMap[mArguments[i]->GetText()]);
+			}
+		}
+	}
+}
+
+bool Instruction::IsText()
+{
+	if(mType < 0)
+		return true && IsValid();
 }

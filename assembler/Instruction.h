@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 #include "Argument.h"
 
@@ -22,14 +23,19 @@ public:
 
 	void ParseArguments();
 
+	bool IsLabelDef();
+	bool NeedsLabel();
+
+	std::string GetLabelDefName();
+
+	void SubstituteLabels(std::map<std::string, unsigned int> &labelMap);
+
 	bool IsValid();
+	bool IsText();
 
 private:
 
-	
-
 	Instruction(const std::string & line);
-	
 
 	std::vector<Argument*> mArguments;
 

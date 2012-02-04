@@ -6,7 +6,7 @@
 #include "common/Header.h"
 #include "common/Opcode.h"
 #include "common/Registers.h"
-#include "Output.h"
+// #include "Output.h"
 #include "Utilities.h"
 #include "Instruction.h"
 
@@ -64,22 +64,35 @@ void ParseFile(std::ifstream &fin, std::ofstream &fout)
 	int invalidCode = 0;
 	int lineNumber = 0;
 	std::string tmpTextOut = "";
+	std::vector<Instruction*> Instructions;
+	Instruction* tmp = 0;
+	std::map<std::string, unsigned int> labels;
+	int textPos = 0;
 
 
 	while(!fin.eof()) {
 		tmpTextOut = "";
+		tmp = 0;
 		fin.getline(line,sizeof(line) - 1);
 		lineNumber++;
-		Instruction * t = Instruction::CreateInstruction(line);
-		if(t) {
-			t->ParseArguments();
-			std::string temp = t->ToBinary();
+		tmp = Instruction::CreateInstruction(line);
+		if(tmp) {
+			tmp->ParseArguments();
+			textPos += tmp->GetBinaryLen();
+			Instructions.push_back(tmp);
+			if(tmp->IsLabelDef()) {
+				if(labels.find(tmp->GetLabelDefName()) == labels.end()) {
+					labels[tmp->GetLabelDefName()] = textPos;
+				} else {
+					invalidCode++;
+					continue;
+				}
+			}
 		} else {
-			std::cerr << "Error in instruction.cpp on line: " << line << std::endl;
+			continue;
 		}
-		
 
-		op = tokenize(line, WHITE);
+		/*op = tokenize(line, WHITE);
 		if(op == 0)
 			continue;
 
@@ -294,13 +307,19 @@ void ParseFile(std::ifstream &fin, std::ofstream &fout)
 			} else {
 				ERROR("Labels must be named");
 			}
-		}
+		} */
 
 
-		textout += tmpTextOut;
-		delete t;
-	} 
+		//textout += tmpTextOut;
+		//delete t;
+	}
 
+	for(int i = 0; i < Instructions.size(); i++) {
+		Instructions[i]->SubstituteLabels(labels);
+		if(Instructions[i]->
+		textout.append(Instructions[i]->ToBinary());
+
+	/*
 	for(Label i = unknownLabels.begin(); i != unknownLabels.end(); i++) {
 		if(Labels.find(i->first) != Labels.end()) {
 			int val = Labels[i->first];
@@ -310,20 +329,22 @@ void ParseFile(std::ifstream &fin, std::ofstream &fout)
 			ERRORLINE("Undefined label '" << i->first << "'", i->second.lineNumber);
 		}
 
-	}
-	
+	} */
 
 	if(invalidCode) {
 		std::cerr << "There were " << invalidCode << " errors during assembly" << std::endl;
 		return;
 	}
 
+	//for(int i = 0; i < Instructions.size(); i++) {
+	//	if(Instructions[i]->
+
 	//Output the final executable
 	RNPE_Header header;
 	memset(&header, 0, sizeof(header));
-	
+
 	SET_HEADER_MAGIC(header);
-	
+
 	header.text_pos = sizeof(header);
 	header.text_size = textout.size();
 	header.data_pos = textout.size() + header.text_pos;
@@ -334,7 +355,7 @@ void ParseFile(std::ifstream &fin, std::ofstream &fout)
 	fout.write(textout.c_str(), textout.size());
 	fout.write(dataout.c_str(), dataout.size());
 }
-	
+
 void Usage()
 {
 	std::cout << "rnpe-asm <output> <input>" << std::endl;
