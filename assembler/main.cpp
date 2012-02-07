@@ -78,13 +78,21 @@ void ParseFile(std::ifstream &fin, std::ofstream &fout)
 		tmp = Instruction::CreateInstruction(line);
 		if(tmp) {
 			tmp->ParseArguments();
-			textPos += tmp->GetBinaryLen();
+			if(!tmp->IsValid()) {
+				std::cerr << "Error on line " << lineNumber  << ": Invalid Argument" << std::endl;
+				invalidCode++;
+			}
+			if(!tmp->IsDataDef() && !tmp->IsLabelDef())
+				textPos += tmp->GetBinaryLen();
 			Instructions.push_back(tmp);
-			if(tmp->IsLabelDef()) {
+			if(tmp->IsLabelDef() || tmp->IsDataDef()) {
 				if(labels.find(tmp->GetLabelDefName()) == labels.end()) {
-					labels[tmp->GetLabelDefName()] = textPos;
+					labels[tmp->GetLabelDefName()] = tmp->IsLabelDef() ? textPos : dataout.size();
+					if(tmp->IsDataDef())
+						dataout.append(tmp->ToBinary());
 				} else {
 					invalidCode++;
+					std::cerr << "Error on line " << lineNumber << ": Label " << tmp->GetLabelDefName() << " already defined." << std::endl;
 					continue;
 				}
 			}
@@ -316,9 +324,9 @@ void ParseFile(std::ifstream &fin, std::ofstream &fout)
 
 	for(int i = 0; i < Instructions.size(); i++) {
 		Instructions[i]->SubstituteLabels(labels);
-		if(Instructions[i]->
-		textout.append(Instructions[i]->ToBinary());
-
+		if(Instructions[i]->IsText())
+			textout.append(Instructions[i]->ToBinary());
+	}
 	/*
 	for(Label i = unknownLabels.begin(); i != unknownLabels.end(); i++) {
 		if(Labels.find(i->first) != Labels.end()) {

@@ -18,6 +18,7 @@ enum ArgTypes {
 	TYPE_Def_Address, //for VM
 	TYPE_Constant,
 	TYPE_Id,
+	TYPE_Def_Const,
 	TYPE_Operator, //for assembler
 	NUM_TYPES
 };
