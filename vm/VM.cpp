@@ -95,9 +95,9 @@ void VM::dump()
 {
 	for(int i = 0; i < NUM_REGISTERS; i++) {
 		std::cerr << STR_Registers[i] << ": 0x" << std::hex << registers[i] << std::dec;
-		if (i % 2)
+		//if (i % 2)
 			std::cerr << "	";
-		else
+		//else
 			std::cerr << std::endl;
 	}
 }
@@ -113,14 +113,14 @@ void VM::Execute()
 	int retVal, retCode;
 	do
 	{
-		std::cerr << "----------------------------------------------------" << std::endl;
-		std::cerr << "Reading opcode" << std::endl;
+		//std::cerr << "----------------------------------------------------" << std::endl;
+		//std::cerr << "Reading opcode" << std::endl;
 		op = ReadOpcode();
-		std::cerr << "----------------------------------------------------" << std::endl;
+		//std::cerr << "----------------------------------------------------" << std::endl;
 		retVal = ExecuteOpcode(op, &retCode);
-		std::cerr << "++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
-		dump();
-		std::cerr << "++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
+		//std::cerr << "++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
+		//dump();
+		//std::cerr << "++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
 		if(mOpts->IsStepping())
 			std::cin.get();
 	} while( !retVal );
@@ -147,7 +147,7 @@ int VM::ExecuteOpcode (Opcode &op, int * retCode)
 		return -3;
 	//int ret = 0;
 	//std::cerr << "Executing opcode: " << (int) op.opcode << std::endl;
-	op.printop();
+	//op.printop();
 	switch(op.opcode)
 	{
 	case MOV_OP: //mov
@@ -165,7 +165,8 @@ int VM::ExecuteOpcode (Opcode &op, int * retCode)
 				registers[op.args[0]] = op.args[1] & 0xFF;
 			break;
 		case TYPE_Def_Address:
-			ResolveOpcodeArg(op, 0);
+		case TYPE_Def_Const:
+			ResolveArgToAddress(op, 0);
 		case TYPE_Address:
 			if(op.opcode == MOV_OP)
 				memcpy(&mData[op.args[0]], &op.args[1], 4);
@@ -174,6 +175,7 @@ int VM::ExecuteOpcode (Opcode &op, int * retCode)
 			break;
 		default:
 			std::cerr << "Invalid Mov operation" << std::endl;
+			break;
 		}
 		break;
 	case ADD_OP:
@@ -425,5 +427,40 @@ void VM::ResolveOpcodeArg(Opcode &op, unsigned int arg)
 		break;
 	default:
 		std::cerr << "Invalid subcode: " << SUBCODE_N(arg, op.subcode) << std::endl;
+		break;
+	}
+}
+
+void VM::ResolveArgToAddress(Opcode &op, unsigned int arg)
+{
+	if (arg >= 2)
+		return;
+
+	switch(SUBCODE_N(arg, op.subcode))
+	{
+	case SC_EBX:
+		op.args[arg] = EBX;
+		break;
+	case SC_EBX_P_EAX:
+		op.args[arg] = EBX + EAX;
+		break;
+	case SC_EBX_M_EAX:
+		op.args[arg] = EBX - EAX;
+		break;
+	case SC_CONST_P_EAX:
+		op.args[arg] = op.args[arg] + EAX;
+		break;
+	case SC_CONST_M_EAX:
+		op.args[arg] = op.args[arg] - EAX;
+		break;
+	case SC_EBX_P_CONST:
+		op.args[arg] = EBX + op.args[arg];
+		break;
+	case SC_EBX_M_CONST:
+		op.args[arg] = EBX - op.args[arg];
+		break;
+	default:
+		std::cerr << "Invalid subcode: " << SUBCODE_N(arg, op.subcode) << std::endl;
+		break;
 	}
 }

@@ -26,7 +26,7 @@ char* Utilities::LoadString(VM* vm, unsigned int address)
 
 int Utilities::GetArgType(int n, char subcode)
 {
-	std::cerr << "GetArgType:: subcode: 0x" << std::hex << (int)subcode << " subcode_n: " << (int)SUBCODE_N(n, subcode) << std::dec << std::endl;
+	//std::cerr << "GetArgType:: subcode: 0x" << std::hex << (int)subcode << " subcode_n: " << (int)SUBCODE_N(n, subcode) << std::dec << std::endl;
 	switch(SUBCODE_N(n, subcode))
 	{
 	case SC_CONST:
@@ -34,7 +34,7 @@ int Utilities::GetArgType(int n, char subcode)
 	case SC_CONST_M_EAX:
 	case SC_EBX_P_CONST:
 	case SC_EBX_M_CONST:
-		return TYPE_Constant;
+		return TYPE_Def_Const;
 		break;
 	case SC_REG:
 		return TYPE_Register;
@@ -82,6 +82,7 @@ void Utilities::LoadOpcodeArgs(Opcode * op, char* mText, unsigned int * register
 			{
 			case TYPE_Constant:
 			case TYPE_Address:
+			case TYPE_Def_Const:
 				load_arg(op->args[i]);
 				break;
 			case TYPE_Register:

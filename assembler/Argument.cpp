@@ -83,21 +83,20 @@ void Argument::Init()
 				}
 				return;
 			}
-		} if (mText.size() == 1) {
-			if(mText[0] == '+' ) {
-				mType = SC_NONE;
-				mInternalType = ARG_PLUS;
-				return;
-			} else if (mText[0] == '-') {
-				mType = SC_NONE;
-				mInternalType = ARG_MINUS;
-				return;
-			}
-		} else {
-			mValid = false;
+		} 
+	}
+
+	if (mText.size() == 1) {
+		if(mText[0] == '+' ) {
+			mType = SC_NONE;
+			mInternalType = ARG_PLUS;
+			return;
+		} else if (mText[0] == '-') {
+			mType = SC_NONE;
+			mInternalType = ARG_MINUS;
 			return;
 		}
-	}
+	} 
 
 	//check if the argument is a hex constant
 	if(mText.size() >= 3) {
@@ -260,3 +259,34 @@ std::string Argument::ToBinary()
 
 	return retval;
 }
+
+bool Argument::NeedsLabel()
+{
+	if (mType == SC_CONST && (mInternalType == ARG_LABEL || mInternalType == ARG_DATA))
+		return true;
+
+	for(int i = 0; i < mSubArguments.size(); i++)
+		if(mSubArguments[i]->NeedsLabel())
+			return true;
+
+	return false;
+}
+
+void Argument::SubstituteLabels(std::map<std::string, unsigned int> &labelMap)
+{
+	if (mType == SC_CONST && (mInternalType == ARG_LABEL || mInternalType == ARG_DATA)) {
+		if( labelMap.find(mText) != labelMap.end() ) {
+			mVal = labelMap[mText];
+			mInternalType = ARG_NONE;
+		} else {
+			mValid = false;
+		}
+	} else {
+		for(int i = 0; i < mSubArguments.size(); i++) {
+			if(mSubArguments[i]->NeedsLabel()) { //depth should only be one, but here goes...
+				mSubArguments[i]->SubstituteLabels(labelMap);
+			}
+		}
+	}
+}
+

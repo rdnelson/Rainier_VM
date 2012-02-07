@@ -24,6 +24,7 @@ public:
 	void ParseArguments();
 
 	bool IsLabelDef();
+	bool IsDataDef();
 	bool NeedsLabel();
 
 	std::string GetLabelDefName();

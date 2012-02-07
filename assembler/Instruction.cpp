@@ -4,6 +4,7 @@
 
 #define OP_STRINGS
 #define OP_BUILDERS
+#define OP_ARGNUM
 #include "common/Opcode.h"
 
 #define WHITE " 	"
@@ -55,6 +56,7 @@ Instruction* Instruction::CreateInstruction(const std::string & line)
 		return newInst;
 	} else if (opcode[0] == ':') { //label
 		newInst->mType = LABEL_OP;
+		newInst->mLine = newInst->mLine.substr(1);
 		return newInst;
 	}
 
@@ -133,7 +135,39 @@ int Instruction::GetBinaryLen()
 
 bool Instruction::IsValid()
 {
+	if(mType >= 0 && mArguments.size() != OP_ArgNum[mType])
+		return false;
 
+	//argument type checks
+	switch(mType) {
+	case MOV_OP:
+	case MOVB_OP:
+		if(mArguments[0]->GetType() == SC_CONST)
+			return false;
+		break;
+	case ADD_OP:
+	case SUB_OP:
+	case MUL_OP:
+	case DIV_OP:
+	case SHR_OP:
+	case SHL_OP:
+	case AND_OP:
+	case OR_OP:
+	case XOR_OP:
+	case NOT_OP:
+		if(mArguments[0]->GetType() != SC_REG)
+			return false;
+		break;
+	case JMP_OP:
+	case JE_OP:
+	case JNE_OP:
+	case JGT_OP:
+	case JGE_OP:
+	case JLT_OP:
+	case JLE_OP:
+		break;
+
+	}
 	return true;
 }
 
@@ -145,11 +179,22 @@ bool Instruction::IsLabelDef()
 	if(mType == LABEL_OP)
 		return true;
 
+	return false;
+}
+
+bool Instruction::IsDataDef()
+{
+
+	if(!IsValid())
+		return false;
+
 	for(int i = 0; i < mArguments.size(); i++) {
-		if(mType == DS_OP) {
-			if(mArguments[i]->GetInternalType() == Argument::ARG_LABEL_DEC) {
-				return mArguments.size() == 2;
-			}
+		switch(mType) { //switch used for future expansion purposes
+		case DS_OP:
+			return true;
+			break;
+		default:
+			break;
 		}
 	}
 	return false;
@@ -168,28 +213,24 @@ bool Instruction::NeedsLabel()
 
 std::string Instruction::GetLabelDefName()
 {
-	if(!IsLabelDef())
-		return "";
-
-	if(mType == LABEL_OP)
+	if(IsLabelDef())
 		return mLine;
-
-	return mArguments[1]->GetText();
+	else if (IsDataDef())
+		return mArguments[0]->GetText();
+	
+	return "";
 }
 
 void Instruction::SubstituteLabels(std::map<std::string, unsigned int> &labelMap)
 {
 	for(int i = 0; i < mArguments.size(); i++) {
-		if(mArguments[i]->GetInternalType() == Argument::ARG_LABEL || mArguments[i]->GetInternalType() == Argument::ARG_DATA) {
-			if(labelMap.find(mArguments[i]->GetText()) != labelMap.end()) {
-				mArguments[i]->SetVal(labelMap[mArguments[i]->GetText()]);
-			}
+		if(mArguments[i]->NeedsLabel()) {
+			mArguments[i]->SubstituteLabels(labelMap);
 		}
 	}
 }
 
 bool Instruction::IsText()
 {
-	if(mType < 0)
-		return true && IsValid();
+	return (mType >= 0) && IsValid();
 }
