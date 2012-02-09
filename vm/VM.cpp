@@ -341,6 +341,25 @@ int VM::ExecuteOpcode (Opcode &op, int * retCode)
 		if (ECX != 0)
 			EIP = op.args[0];
 		break;
+	case CALL_OP:
+		ResolveOpcodeArg(op,0);
+		if(op.args[0] < mHeader.text_size) {
+			mStack.push(EIP);
+			EIP = op.args[0];
+		} else {
+			std::cerr << "Access Denied: Tried to execute beyond program scope" << std::endl;
+			return -2;
+		}
+		break;
+	case RET_OP:
+		if(mStack.top() < mHeader.text_size) {
+			EIP = mStack.top();
+			mStack.pop();
+		} else {
+			std::cerr << "Stack Corruption: Ret call tried to return beyond program scope" << std::endl;
+			return -2;
+		}
+		break;
 	}
 
 	return 0;

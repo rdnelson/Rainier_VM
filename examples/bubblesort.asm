@@ -12,6 +12,7 @@ sub ecx 1
 add ecx ebx
 push ebx #push array base
 :bubble
+call :printstr
 push ecx #ecx is the final position to check
 mov ecx eax #ecx is flip count
 movb eax [ebx]
@@ -58,3 +59,16 @@ sys
 mov eax 0
 mov edx 0
 sys
+
+:printstr
+push eax
+push edx
+
+mov eax 1
+mov edx @Sortarray
+sys
+
+pop edx
+pop eax
+
+ret

@@ -170,6 +170,8 @@ bool Instruction::IsValid()
 	case JGE_OP:
 	case JLT_OP:
 	case JLE_OP:
+	case CALL_OP:
+	case RET_OP:
 		break;
 
 	}
