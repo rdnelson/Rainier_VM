@@ -91,6 +91,11 @@ void Instruction::ParseArguments()
 			token = mLine.substr(tokenBegin, tokenEnd - tokenBegin);
 		}
 
+		if(token[0] == '"') {
+			tokenEnd = mLine.find_first_of("\"", tokenBegin + 1) + 1;
+			token = mLine.substr(tokenBegin, tokenEnd - tokenBegin);
+		}
+
 		mArguments.push_back(new Argument(token));
 	}
 }
