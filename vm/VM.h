@@ -44,7 +44,7 @@ public:
 
 	Opcode ReadOpcode();
 	int ExecuteOpcode(Opcode & op, int * retCode);
-	int Syscall();
+	bool Syscall(int *retCode);
 
 	friend class Utilities;
 

@@ -330,9 +330,8 @@ int VM::ExecuteOpcode (Opcode &op, int * retCode)
 		}
 		break;
 	case SYSCALL_OP:
-		if(retCode)
-			*retCode = Syscall();
-		return -1;
+		if(!Syscall(retCode))
+			return -1;
 		break;
 
 	case LOOP_OP: //loop
@@ -347,13 +346,15 @@ int VM::ExecuteOpcode (Opcode &op, int * retCode)
 	return 0;
 }
 
-int VM::Syscall()
+bool VM::Syscall(int *retCode)
 {
 	std::cerr << "Syscall made: executing command 0x" << std::hex << (int)EAX << std::dec << std::endl;
 	switch(EAX)
 	{
 	case 0x00: //exit
-		return EDX;
+		if(retCode)
+			*retCode = EDX;
+		return false;
 		break;
 	case 0x01: //printf
 		char * retStr = Utilities::LoadString(this, EDX);
@@ -361,7 +362,7 @@ int VM::Syscall()
 		delete retStr;
 		break;
 	}
-	return 0;
+	return true;
 }
 
 int VM::GetOpcodeData(const unsigned int type, const unsigned int val, unsigned int &data)
