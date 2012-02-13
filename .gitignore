@@ -5,6 +5,7 @@ makefile
 vm/vm
 compiler/compiler
 assembler/assembler
+unittests/unittests
 *.opensdf
 *.sdf
 *.sln
@@ -16,3 +17,6 @@ assembler/assembler
 opcodes.db~
 ipch/*
 Debug/*
+*.la
+*.lo
+*.a
