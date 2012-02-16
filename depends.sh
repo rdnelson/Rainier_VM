@@ -1,4 +1,5 @@
 COMMON=include
+EXTRAOBJ=
 FILES=$( find . \( -path "*.cpp" -a ! -path "./.*" \)  -printf "%h/%f " )
 echo Generating dependency files for:
 for f in $FILES
@@ -21,7 +22,15 @@ do
 		then
 			echo -n "\$(COMMON)/$i " >> $f.d
 		else
-			echo -n "$i " >> $f.d
+			if [ -e $i ]
+			then
+				echo $i
+				echo -n "../$i " >> $f.d
+				echo -n "../${i/.h/.o} " >> $f.d
+				EXTRAOBJ="$EXTRAOBJ ../${i/.h/.o}"
+			else
+				echo -n "$i " >> $f.d
+			fi
 		fi
 	done
 	echo >> $f.d
@@ -38,4 +47,5 @@ do
 	else
 		echo "" >> $f.d
 	fi
+	echo "EXTRAOBJ+= $EXTRAOBJ" >> $f.d
 done
