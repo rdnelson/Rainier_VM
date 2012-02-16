@@ -32,6 +32,10 @@ void Argument::Init(std::string & arg)
 
 void Argument::Init()
 {
+	for(int i = 0; i < mSubArguments.size(); ++i)
+		delete mSubArguments[i];
+	mSubArguments.clear();
+
 	//first parse it into standard form (lcase, no whitespace)
 
 	int i = 0;
@@ -74,7 +78,7 @@ void Argument::Init()
 			mType = SC_NONE;
 			mInternalType = ARG_STRING;
 
-			if(mText[mText.size() - 1 ] == '"') {	
+			if(mText[mText.size() - 1 ] == '"') {
 				mText = mText.substr(1, mText.size() - 2); // cut off quotes
 				int replace = mText.find("\\n");
 				while(replace != mText.npos) {
@@ -83,7 +87,7 @@ void Argument::Init()
 				}
 				return;
 			}
-		} 
+		}
 	}
 
 	if (mText.size() == 1) {
@@ -96,7 +100,7 @@ void Argument::Init()
 			mInternalType = ARG_MINUS;
 			return;
 		}
-	} 
+	}
 
 	//check if the argument is a hex constant
 	if(mText.size() >= 3) {

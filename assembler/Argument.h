@@ -25,7 +25,7 @@ public:
 
 	bool HasConstant(); // value stored in val is output to text as 4 byte constant
 	bool HasData(); // value in mText is output to data as a data entry
-	bool IsValid(); // return false for invalid addresses, broken strings, other checking must be done by instruction
+	bool IsValid() { return mValid; } // return false for invalid addresses, broken strings, other checking must be done by instruction
 	bool NeedsLabel(); //return true if this or any subarguments is a label
 
 	std::string ToBinary();
