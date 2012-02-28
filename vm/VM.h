@@ -8,13 +8,14 @@
 #ifndef VM_H_
 #define VM_H_
 
-#include <stack>
+#include <vector>
 #include <sstream>
 #include "common/Registers.h"
+#include "common/Singleton.hpp"
+
 #include "Options.h"
+#include "common/Logger.hpp"
 #include "common/Header.h"
-#include "common/Opcode.h"
-#include "Utilities.h"
 
 enum CPU_FLAGS {
 	FLAG_OFL = 1 << 0,
@@ -22,7 +23,6 @@ enum CPU_FLAGS {
 	FLAG_GREATER = 1 << 2,
 	FLAG_ZERO = 1 << 3,
 };
-
 
 #define EAX registers[REG_EAX]
 #define EBX registers[REG_EBX]
@@ -36,35 +36,51 @@ enum CPU_FLAGS {
 
 class VM {
 public:
+	VM();
 	VM(Options *opts);
 	virtual ~VM();
 
-	void run();
-	void Execute();
+	void SetOptions(Options *opts);
 
-	Opcode ReadOpcode();
-	int ExecuteOpcode(Opcode & op, int * retCode);
-	bool Syscall(int *retCode);
+	void Start();
 
-	friend class Utilities;
+	unsigned int GetMemSize() { return mOpts->GetMemSize(); }
+	bool ValidAddress(char* add);
+
+	unsigned int GetRegister(unsigned int reg);
+	void SetRegister(unsigned int reg, unsigned int val);
+
+	bool GetFlag(CPU_FLAGS flag) { return mFlags & flag; }
+	void SetFlag(CPU_FLAGS flag) { mFlags |= flag; }
+	void ClearFlag(CPU_FLAGS flag) { mFlags &= ~flag; }
+	void ToggleFlag(CPU_FLAGS flag) { mFlags ^= flag; }
+
+	Logger& GetLogger() { return log; }
+
+	//RAM
+	char* Memory; //Buffer for entire VM
 
 private:
+	void Execute(RNPE_Header* header);
+
 
 	void dump();
-	int GetOpcodeData(const unsigned int type, const unsigned int val, unsigned int &data);
-	void ResolveOpcodeArg(Opcode &op, unsigned int arg);
-	void ResolveArgToAddress(Opcode &op, unsigned int arg);
+
+	//
+
+	//State is valid
 	bool mReady;
+
+	//initial configuration
 	Options* mOpts;
-	RNPE_Header mHeader;
-	char* mData;
-	char* mText;
-	//unsigned int eax, ebx, ecx, edx, esx, esi, edi, eip, ebp, esp;
+
+	//CPU Registers
 	unsigned int registers[NUM_REGISTERS];
 	unsigned char mFlags;
-	std::stack<unsigned int> mStack;
-	std::stringstream mErr;
-	std::streambuf* mCerrBackup;
+
+	Logger log;
 };
+
+extern Singleton<VM> VM_INSTANCE;
 
 #endif /* VM_H_ */
