@@ -2,14 +2,14 @@
 #define __MOVB_H__
 
 #include "Instruction.h"
+#include "Mov.h"
 
-class Movb : public Instruction {
-	friend class Instruction;
-protected:
-	Movb(char* eip);
+class Movb : public Mov {
 
 public:
-	void Execute();
+	Movb(char* eip);
+protected:
+	//unsigned int mCopySize;
 };
 
 #endif
