@@ -1,13 +1,9 @@
 #include "Movb.h"
 #include "VM.h"
 
-Movb::Movb(char* eip)
+Movb::Movb(char* eip) : Mov(eip)
 {
-	mEipOffset += LoadArgs(2, eip);
-}
-
-void Movb::Execute()
-{
-	VM_INSTANCE()->GetMemSize();
+	mCopySize = 1;
+	//mEipOffset += LoadArgs(2, eip);
 }
 
