@@ -7,7 +7,7 @@ class Mov : public Instruction {
 	friend class Instruction;
 protected:
 	Mov(char* eip);
-
+	unsigned int mCopySize;
 public:
 	void Execute();
 };
