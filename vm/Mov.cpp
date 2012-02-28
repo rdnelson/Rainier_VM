@@ -5,19 +5,25 @@
 
 #include <string.h>
 
-Mov::Mov(char* eip)
+Mov::Mov(char* eip) : mCopySize(4)
 {
 	mEipOffset += LoadArgs(2, eip);
 }
 
 void Mov::Execute()
 {
+	int bitCheck = 0;
+
+	//produce 0xff in each copyable byte
+	for(unsigned int i = 0; i < mCopySize && i < sizeof(int); i++)
+		bitCheck = bitCheck << 8 | 0xFF;
+
 	ResolveValue(1); // second argument needs to be resolved to a constant first
 
 	switch(subcode[0]) { //check that first argument is register or address
 	case SC_REG:
 		//nice and simple
-		VM_INSTANCE()->SetRegister(arguments[0], arguments[1]);
+		VM_INSTANCE()->SetRegister(arguments[0], arguments[1] & bitCheck);
 		break;
 
 	case SC_CONST_ADD:
@@ -31,7 +37,7 @@ void Mov::Execute()
 		//ensure it's a valid address before copy
 		if(VM_INSTANCE()->ValidAddress((char*)arguments[0])) {
 			//copy the second argument into memory
-			memcpy(&VM_INSTANCE()->Memory[arguments[0]], &arguments[1], 4);
+			memcpy(&VM_INSTANCE()->Memory[arguments[0]], &arguments[1] & bitCheck, mCopySize);
 		} else {
 			VM_INSTANCE()->GetLogger() << "Invalid Address: 0x" << std::hex << arguments[0] << " at EIP: 0x" << VM_INSTANCE()->GetRegister(REG_EIP) << std::dec << std::endl;
 		}
