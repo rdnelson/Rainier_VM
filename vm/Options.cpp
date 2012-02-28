@@ -9,8 +9,9 @@
 #include <string>
 #include <stdio.h>
 #include <cstring>
+#include <cstdlib>
 
-Options::Options(int argc, char* argv[]) : mValid(false), mVerbose(false), mStep(false) {
+Options::Options(int argc, char* argv[]) : mValid(false), mVerbose(false), mStep(false), mMemSize(MEM_SIZE), mPageSize(PAGE_SIZE) {
 	// TODO Auto-generated constructor stub
 	if( argc == 1)
 	{
@@ -24,6 +25,8 @@ Options::Options(int argc, char* argv[]) : mValid(false), mVerbose(false), mStep
 			mVerbose = true;
 		} else if (!strcmp(argv[i], "--step")) {
 			mStep = true;
+		} else if (!strcmp(argv[i], "-m")) {
+			mMemSize = atoi(argv[++i]);
 		}
 	}
 
