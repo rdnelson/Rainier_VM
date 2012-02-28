@@ -1,51 +1,97 @@
-COMMON=include
-EXTRAOBJ=
-FILES=$( find . \( -path "*.cpp" -a ! -path "./.*" \)  -printf "%h/%f " )
-echo Generating dependency files for:
-for f in $FILES
-do
-	if [ $f -ot $f.d ]
-	then
-		continue
-	fi
-	OBJFILE=${f/.cpp/.o}
-	OBJFILE=${OBJFILE/.c/.o}
-	OBJFILE=$( echo $OBJFILE | sed -n 's|./[a-zA-Z0-9]*/||p' )
-	FILE=$( echo $f | sed -n 's|./[a-zA-Z0-9]*/||p' )
-	echo $f
-	echo "OBJS+= $OBJFILE" > $f.d
-	echo -n "$OBJFILE: $FILE " >> $f.d
-	INCLUDES=$( grep -h "#include" $f | sed -n 's/#include[ tab]*"//p' | sed -n 's/"//p' | tr "\\n" " " )
-	for i in $INCLUDES
-	do
-		if [ ! -e $i -a -e $COMMON/$i ]
-		then
-			echo -n "\$(COMMON)/$i " >> $f.d
+#!/bin/bash
+
+while [ $# -gt 0 ]; do
+	#file exists or there are include directories to check
+	if [ "$1" == "-i" ]; then
+		shift
+		INC="$1 $INC"
+	elif [ "$1" == "-l" ]; then
+		LOC="1"
+	elif [  -f $1 -o "$INC" != "" ]; then
+		if [ "$TMP" == "" ]; then
+			TMP=`mktemp`
+		fi
+
+		if [ -f $1 ]; then
+			FIL=$1
 		else
-			if [ -e $i ]
-			then
-				echo $i
-				echo -n "../$i " >> $f.d
-				echo -n "../${i/.h/.o} " >> $f.d
-				EXTRAOBJ="$EXTRAOBJ ../${i/.h/.o}"
-			else
-				echo -n "$i " >> $f.d
+			#check include directories
+			FIL=`find $INC -path "*$1" 2>/dev/null`
+			if [ "$DEBUG" != "" ]; then
+				echo Finding \"*$1\" in path: \"$INC\" >&2
+				echo Found: $FIL >&2
 			fi
 		fi
-	done
-	echo >> $f.d
-	echo -n "	\$(CC) \$(DEBUG) \$(CFLAGS) -o $OBJFILE $FILE " >> $f.d
-	if [ "$(uname -p)" == 'i386' ]
-	then
-		echo "\$(MFLAG32)" >> $f.d
-	elif [ "$(uname -p)" == 'x86_64' ]
-	then
-		echo "\$(MFLAG64)" >> $f.d
-	elif [ "$(uname -p)" == 'armv71' ]
-	then
-		echo "\$(MFLAGARM)" >> $f.d
+
+		#if file doesn't exist
+		if [ "$FIL" == "" ]; then
+			echo Included file $1 not found. >&2
+			shift
+			continue;
+		fi
+		if [ "$LOC" == "" ]; then
+			#if [ $FIL -ot $FIL.o ]; then
+			#	continue
+			#fi
+			echo $FIL >> $TMP
+
+			if [ "$DEBUG" != "" ]; then
+				echo Finding Dependencies for $FIL >&2
+			fi
+
+			#find all of the include files referenced in the current file
+			FILES=$( grep -ozP '^[ \t]*#include[ \t]*\"[^\"]*\"' $FIL | xargs -0 echo | grep -oP '(?<=\")[^\"]*(?=\")' )
+
+			#create marker file
+
+			if [ "$DEBUG" != "" ]; then
+				echo The Included Files for $FIL are: $FILES >&2
+			fi
+			#recursively check the include files
+			for f in $FILES; do
+
+				if [ "$DEBUG" != "" ]; then
+					echo Checking: $f >&2
+				fi
+
+				INCFLAG=
+				#parse the includes for recursion
+				for I in $INC; do
+					INCFLAG="-i $I $INCFLAG"
+				done
+
+				if [ "`grep \"$f\" $TMP`" == "" ]; then
+
+					if [ "$INCFLAG" != "" ]; then
+						SUB="$( ./$0 --temp $TMP $DEBUG $INCFLAG $f ) $SUB"
+					else
+						SUB="$( ./$0 --temp $TMP $DEBUG $f ) $SUB"
+					fi
+				fi
+			done
+
+			#combine and condense primary and recursive dependencies
+			DEPS=$( echo $FILES $SUB | xargs -L 1 -d " " echo | sort -u )
+			if [ "$DEBUG" != "" ]; then
+				echo Dependencies for $FIL are: $DEPS >&2
+			fi
+			#final return for this file
+			echo $DEPS
+		else
+			echo $FIL
+		fi
+	elif [ "$1" == "-d" ]; then
+		DEBUG="-d"
+		echo Setting Debug Flag >&2
+	elif [ "$1" == "--temp" ]; then
+		shift
+		if [ "$TMP" == "" ]; then
+			TMP=$1
+		else
+			echo "temp must be set before any files are passed" >&2
+		fi
 	else
-		echo "" >> $f.d
+		echo "Invalid Argument: " $1 >&2
 	fi
-	echo "EXTRAOBJ+= $EXTRAOBJ" >> $f.d
+	shift
 done

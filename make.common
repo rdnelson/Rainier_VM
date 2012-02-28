@@ -18,3 +18,4 @@ GTEST_SRC=$(LIBDIR)/src/gtest-1.6.0
 GTEST_LIB=gtest_main.a
 CPPCHECK_DIRS=vm/ compiler/ assembler/
 CPPCHECK=cppcheck $(CPPCHECK_DIRS)
+GEN_MAKE=./gen_makefiles.sh
