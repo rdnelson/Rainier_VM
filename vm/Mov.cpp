@@ -37,7 +37,8 @@ void Mov::Execute()
 		//ensure it's a valid address before copy
 		if(VM_INSTANCE()->ValidAddress((char*)arguments[0])) {
 			//copy the second argument into memory
-			memcpy(&VM_INSTANCE()->Memory[arguments[0]], &arguments[1] & bitCheck, mCopySize);
+			arguments[1] &= bitCheck;
+			memcpy(&VM_INSTANCE()->Memory[arguments[0]], &arguments[1], mCopySize);
 		} else {
 			VM_INSTANCE()->GetLogger() << "Invalid Address: 0x" << std::hex << arguments[0] << " at EIP: 0x" << VM_INSTANCE()->GetRegister(REG_EIP) << std::dec << std::endl;
 		}
