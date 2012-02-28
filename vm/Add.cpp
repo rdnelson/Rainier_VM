@@ -16,18 +16,18 @@ void Add::Execute()
 
 	switch(subcode[0]) {
 	case SC_REG:
-		val1 = VM_INSTANCE()->GetRegister(argument[0]);
-		sum = val1 + argument[1];
-		VM_INSTANCE()->SetRegister(argument[0], sum);
+		val1 = VM_INSTANCE()->GetRegister(arguments[0]);
+		sum = val1 + arguments[1];
+		VM_INSTANCE()->SetRegister(arguments[0], sum);
 		if(sum < val1)
-			VM_INSTANCE()->SetFlag(CPU_OFL);
+			VM_INSTANCE()->SetFlag(FLAG_OFL);
 		else
-			VM_INSTANCE()->ClearFlag(CPU_OFL);
+			VM_INSTANCE()->ClearFlag(FLAG_OFL);
 
 		if(sum == 0)
-			VM_INSTANCE()->SetFlag(CPU_ZERO);
+			VM_INSTANCE()->SetFlag(FLAG_ZERO);
 		else
-			VM_INSTANCE()->ClearFlag(CPU_ZERO);
+			VM_INSTANCE()->ClearFlag(FLAG_ZERO);
 		break;
 
 	default:
