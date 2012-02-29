@@ -54,6 +54,8 @@ enum Opcodes {
 	JLE_OP,
 	SYSCALL_OP,
 	MOVB_OP,
+	CALL_OP,
+	RET_OP,
 	NUM_OPCODES
 };
 
@@ -123,6 +125,8 @@ static char OP_ArgNum[] = {
 	1,
 	0,
 	2,
+	1,
+	0,
 };
 
 #endif
@@ -155,6 +159,8 @@ static const char* STR_Opcodes[] = {
 	"jle",
 	"sys",
 	"movb",
+	"call",
+	"ret",
 };
 
 #endif

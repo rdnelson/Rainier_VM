@@ -6,7 +6,6 @@
 #include "common/Header.h"
 #include "common/Opcode.h"
 #include "common/Registers.h"
-#include "Utilities.h"
 #include "Instruction.h"
 
 #define min(a,b) (a > b ? b : a)
@@ -57,7 +56,6 @@ int main(int argc, char* argv[])
 void ParseFile(std::ifstream &fin, std::ofstream &fout)
 {
 	char line[128] = "";
-	char *op;
 	std::string textout = "";
 	std::string dataout = "";
 	int invalidCode = 0;
