@@ -1,15 +1,13 @@
 #ifndef __JGE_H__
 #define __JGE_H__
 
-#include "Instruction.h"
+#include "Jmp.h"
 
-class Jge : public Instruction {
-	friend class Instruction;
+class Jge : public Jmp {
 protected:
-	Jge(char* eip);
-
+	bool Condition();
 public:
-	void Execute();
+	Jge(char* eip);
 };
 
 #endif

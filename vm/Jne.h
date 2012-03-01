@@ -1,15 +1,13 @@
 #ifndef __JNE_H__
 #define __JNE_H__
 
-#include "Instruction.h"
+#include "Jmp.h"
 
-class Jne : public Instruction {
-	friend class Instruction;
+class Jne : public Jmp {
 protected:
-	Jne(char* eip);
-
+	bool Condition();
 public:
-	void Execute();
+	Jne(char* eip);
 };
 
 #endif

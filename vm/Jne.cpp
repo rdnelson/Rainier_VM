@@ -1,13 +1,13 @@
 #include "Jne.h"
 #include "VM.h"
 
-Jne::Jne(char* eip)
+Jne::Jne(char* eip) : Jmp(eip)
 {
-	mEipOffset += LoadArgs(1, eip);
+	//mEipOffset += LoadArgs(1, eip);
 }
 
-void Jne::Execute()
+bool Jne::Condition()
 {
-	VM_INSTANCE()->GetMemSize();
+	return !VM_INSTANCE()->GetFlag(FLAG_EQUALS);
 }
 
