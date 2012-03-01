@@ -1,13 +1,12 @@
 #include "Je.h"
 #include "VM.h"
 
-Je::Je(char* eip)
+Je::Je(char* eip) : Jmp(eip)
 {
-	mEipOffset += LoadArgs(1, eip);
+	//mEipOffset += LoadArgs(1, eip);
 }
 
-void Je::Execute()
+bool Je::Condition()
 {
-	VM_INSTANCE()->GetMemSize();
+	return VM_INSTANCE()->GetFlag(FLAG_EQUALS);
 }
-

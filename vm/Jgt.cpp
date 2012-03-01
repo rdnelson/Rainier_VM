@@ -1,13 +1,13 @@
 #include "Jgt.h"
 #include "VM.h"
 
-Jgt::Jgt(char* eip)
+Jgt::Jgt(char* eip) : Jmp(eip)
 {
-	mEipOffset += LoadArgs(1, eip);
+	//mEipOffset += LoadArgs(1, eip);
 }
 
-void Jgt::Execute()
+bool Jgt::Condition()
 {
-	VM_INSTANCE()->GetMemSize();
+	return VM_INSTANCE()->GetFlag(FLAG_GREATER);
 }
 

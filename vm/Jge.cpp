@@ -1,13 +1,13 @@
 #include "Jge.h"
 #include "VM.h"
 
-Jge::Jge(char* eip)
+Jge::Jge(char* eip) : Jmp(eip)
 {
-	mEipOffset += LoadArgs(1, eip);
+	//mEipOffset += LoadArgs(1, eip);
 }
 
-void Jge::Execute()
+bool Jge::Condition()
 {
-	VM_INSTANCE()->GetMemSize();
+	return VM_INSTANCE()->GetFlag(FLAG_EQUALS) || VM_INSTANCE()->GetFlag(FLAG_GREATER);
 }
 

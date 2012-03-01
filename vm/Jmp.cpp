@@ -8,6 +8,11 @@ Jmp::Jmp(char* eip)
 
 void Jmp::Execute()
 {
-	VM_INSTANCE()->GetMemSize();
+	ResolveValue(0);
+
+	if(Condition()) {
+		if(VM_INSTANCE()->ValidAddress((char*)arguments[0]))
+			VM_INSTANCE()->SetRegister(REG_EIP, arguments[0]);
+	}
 }
 

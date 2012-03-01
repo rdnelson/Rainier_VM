@@ -1,13 +1,13 @@
 #include "Jlt.h"
 #include "VM.h"
 
-Jlt::Jlt(char* eip)
+Jlt::Jlt(char* eip) : Jmp(eip)
 {
-	mEipOffset += LoadArgs(1, eip);
+	//mEipOffset += LoadArgs(1, eip);
 }
 
-void Jlt::Execute()
+bool Jlt::Condition()
 {
-	VM_INSTANCE()->GetMemSize();
+	return !VM_INSTANCE()->GetFlag(FLAG_GREATER) && !VM_INSTANCE()->GetFlag(FLAG_EQUALS);
 }
 
