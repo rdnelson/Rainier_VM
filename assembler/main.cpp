@@ -20,31 +20,40 @@
 #define ERRORLINE(msg,l) std::cerr << "Error on line " << l << ": " << msg << std::endl; \
 					invalidCode++; \
 					continue
-
+//"" for nano syntax highlighting
 
 
 void Usage();
-void ParseFile(std::ifstream &fin, std::ofstream &outfile);
+void ParseFile(std::ifstream &fin, std::ofstream &outfile, bool raw);
 
 int main(int argc, char* argv[])
 {
-	if (argc != 3) {
+	bool raw = false;
+	if (argc != 3 && argc != 4) {
 		Usage();
-	} else {
-		std::ifstream fin(argv[2]);
-		std::ofstream fout(argv[1], std::ios::binary | std::ios::out);
-		if(!fin) {
-			std::cerr << "Invalid input Filename: " << argv[2] << std::endl;
-			return INVALID_INPUT;
+		return -1;
+	} else if(argc == 4) {
+		if(!strcmp(argv[3], "-r")) {
+			raw = true;
+		} else {
+			Usage();
+			return -1;
 		}
-		if(!fout) {
-			std::cerr << "Invalid output Filename: " << argv[1] << std::endl;
-			return INVALID_OUTPUT;
-		}
-		ParseFile(fin, fout);
-		fin.close();
-		fout.close();
 	}
+	std::ifstream fin(argv[2]);
+	std::ofstream fout(argv[1], std::ios::binary | std::ios::out);
+	if(!fin) {
+		std::cerr << "Invalid input Filename: " << argv[2] << std::endl;
+		return INVALID_INPUT;
+	}
+	if(!fout) {
+		std::cerr << "Invalid output Filename: " << argv[1] << std::endl;
+		return INVALID_OUTPUT;
+	}
+	ParseFile(fin, fout, raw);
+	fin.close();
+	fout.close();
+
 
 #ifdef WIN32
 	system("pause");
@@ -53,7 +62,7 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-void ParseFile(std::ifstream &fin, std::ofstream &fout)
+void ParseFile(std::ifstream &fin, std::ofstream &fout, bool raw)
 {
 	char line[128] = "";
 	std::string textout = "";
@@ -63,7 +72,8 @@ void ParseFile(std::ifstream &fin, std::ofstream &fout)
 	std::string tmpTextOut = "";
 	std::vector<Instruction*> Instructions;
 	Instruction* tmp = 0;
-	std::map<std::string, unsigned int> labels;
+	std::map<std::string, int> labels;
+	std::map<std::string, bool> datalabel;
 	int textPos = 0;
 
 
@@ -85,6 +95,7 @@ void ParseFile(std::ifstream &fin, std::ofstream &fout)
 			if(tmp->IsLabelDef() || tmp->IsDataDef()) {
 				if(labels.find(tmp->GetLabelDefName()) == labels.end()) {
 					labels[tmp->GetLabelDefName()] = tmp->IsLabelDef() ? textPos : dataout.size();
+					datalabel[tmp->GetLabelDefName()] = tmp->IsDataDef();
 					if(tmp->IsDataDef())
 						dataout.append(tmp->ToBinary());
 				} else {
@@ -317,6 +328,13 @@ void ParseFile(std::ifstream &fin, std::ofstream &fout)
 
 		//textout += tmpTextOut;
 		//delete t;
+	}
+
+	for(std::map<std::string, int>::iterator it = labels.begin(); it != labels.end(); it++) {
+		if(datalabel[it->first]) {
+			std::cerr << "Updating label: " << it->second << " to point to " << textPos - it->second << std::endl;
+			it->second = textPos - it->second;
+		}
 	}
 
 	for(int i = 0; i < Instructions.size(); i++) {
