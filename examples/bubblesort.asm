@@ -1,7 +1,6 @@
 ds Before "Before: "
 ds After "After: "
-#ds Sortarray "The Quick Brown fox jumped over the lazy dogs\n"
-ds Sortarray "TABD\n"
+ds Sortarray "The Quick Brown fox jumped over the lazy dogs\n"
 mov eax 1
 mov edx @Before
 sys
