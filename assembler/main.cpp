@@ -72,7 +72,7 @@ void ParseFile(std::ifstream &fin, std::ofstream &fout, bool raw)
 	std::string tmpTextOut = "";
 	std::vector<Instruction*> Instructions;
 	Instruction* tmp = 0;
-	std::map<std::string, int> labels;
+	std::map<std::string, unsigned int> labels;
 	std::map<std::string, bool> datalabel;
 	int textPos = 0;
 
@@ -330,7 +330,7 @@ void ParseFile(std::ifstream &fin, std::ofstream &fout, bool raw)
 		//delete t;
 	}
 
-	for(std::map<std::string, int>::iterator it = labels.begin(); it != labels.end(); it++) {
+	for(std::map<std::string, unsigned int>::iterator it = labels.begin(); it != labels.end(); it++) {
 		if(datalabel[it->first]) {
 			std::cerr << "Updating label: " << it->second << " to point to " << textPos - it->second << std::endl;
 			it->second = textPos - it->second;
