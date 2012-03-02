@@ -1,11 +1,21 @@
-ds Sortarray "thequickbrownfoxjumpedoverthelazydogs\n"
+ds Before "Before: "
+ds After "After: "
+#ds Sortarray "The Quick Brown fox jumped over the lazy dogs\n"
+ds Sortarray "TABD\n"
+mov eax 1
+mov edx @Before
+sys
+mov edx @Sortarray
+sys
 mov ecx [@Sortarray]
-mov ebx @SortArray
-sub ecx 1
+mov ebx @Sortarray
+sub ecx 1 #leave new line at end
 add ebx 4 #bubble requires ebx to be address of array, ecx to be length
 
 :start
 push eax #push its initial value
+test ecx 1 #if there's 1 or fewer characters
+jle :done
 
 xor eax eax # clear eax so that flip count is 0
 sub ecx 1
@@ -53,8 +63,11 @@ jmp :bubble #//restart sort
 :done
 pop eax #reset it's initial value
 
-mov edx @Sortarray
 mov eax 1
+mov edx @After
+sys
+
+mov edx @Sortarray
 sys
 mov eax 0
 mov edx 0
