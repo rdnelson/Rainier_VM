@@ -3,6 +3,12 @@
 
 #include "Instruction.h"
 
+enum Syscalls
+{
+	SYS_EXIT,
+	SYS_PRINT_STRING,
+};
+
 class Sys : public Instruction {
 	friend class Instruction;
 protected:
