@@ -332,14 +332,19 @@ void ParseFile(std::ifstream &fin, std::ofstream &fout, bool raw)
 
 	for(std::map<std::string, unsigned int>::iterator it = labels.begin(); it != labels.end(); it++) {
 		if(datalabel[it->first]) {
-			std::cerr << "Updating label: " << it->second << " to point to " << textPos - it->second << std::endl;
 			it->second = textPos - it->second;
 		}
 	}
 
+	bool valid = true;
 	for(int i = 0; i < Instructions.size(); i++) {
 		Instructions[i]->SubstituteLabels(labels);
-		if(Instructions[i]->IsText())
+		valid = valid && Instructions[i]->IsValid();
+		if(!Instructions[i]->IsValid()) {
+			std::cerr << "Error on line: " << Instructions[i]->GetLine() << std::endl;
+			invalidCode++;
+		}
+		if(valid && Instructions[i]->IsText())
 			textout.append(Instructions[i]->ToBinary());
 	}
 	/*

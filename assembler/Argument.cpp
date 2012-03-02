@@ -32,16 +32,12 @@ void Argument::Init(std::string & arg)
 
 void Argument::Init()
 {
-	for(int i = 0; i < mSubArguments.size(); ++i)
+	int i;
+	for(i = 0; i < mSubArguments.size(); ++i)
 		delete mSubArguments[i];
 	mSubArguments.clear();
 
 	//first parse it into standard form (lcase, no whitespace)
-
-	int i = 0;
-	for(i = 0; i < mText.size(); ++i) {
-		mText[i] = std::tolower(mText[i]);
-	}
 
 	if (mText == "")
 		return;
@@ -295,6 +291,8 @@ void Argument::SubstituteLabels(std::map<std::string, unsigned int> &labelMap)
 		for(int i = 0; i < mSubArguments.size(); i++) {
 			if(mSubArguments[i]->NeedsLabel()) { //depth should only be one, but here goes...
 				mSubArguments[i]->SubstituteLabels(labelMap);
+				if(!mSubArguments[i]->IsValid())
+					mValid = false;
 			}
 		}
 	}

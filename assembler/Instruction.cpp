@@ -143,6 +143,10 @@ bool Instruction::IsValid()
 	if(mType >= 0 && mArguments.size() != OP_ArgNum[mType])
 		return false;
 
+	for(int i = 0; i < mArguments.size(); i++)
+		if(!mArguments[i]->IsValid())
+			return false;
+
 	//argument type checks
 	switch(mType) {
 	case MOV_OP:
