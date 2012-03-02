@@ -9,6 +9,7 @@ mov eax 1
 sys
 loop :start
 jmp :end
+mov ebx 255
 :end
 mov eax 0
 mov edx 1
