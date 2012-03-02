@@ -7,7 +7,7 @@
 #define OP_ARGNUM
 #include "common/Opcode.h"
 
-#define WHITE " 	"
+#define WHITE " 	,"
 
 Instruction::Instruction(const std::string & line) : mLine(line), mType(-1)
 {
@@ -224,7 +224,6 @@ std::string Instruction::GetLabelDefName()
 		return mLine;
 	else if (IsDataDef())
 		return mArguments[0]->GetText();
-	
 	return "";
 }
 
