@@ -57,10 +57,13 @@ public:
 
 	Logger& GetLogger() { return log; }
 
+	char* GetMemory(unsigned int add);
+
+private:
+
 	//RAM
 	char* Memory; //Buffer for entire VM
 
-private:
 	void Execute(RNPE_Header* header);
 
 

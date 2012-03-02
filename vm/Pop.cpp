@@ -13,12 +13,18 @@ void Pop::Execute()
 {
 	unsigned int tmp;
 	int esp;
+	char* src;
 	switch(subcode[0])
 	{
 	case SC_REG:
 		esp = VM_INSTANCE()->GetRegister(REG_ESP);
-		memcpy(&tmp, &VM_INSTANCE()->Memory[esp], 4);
-		VM_INSTANCE()->SetRegister(arguments[0], tmp);
+		src = VM_INSTANCE()->GetMemory(esp);
+		if(src){
+			memcpy(&tmp, src, 4);
+			VM_INSTANCE()->GetLogger() << "Popping value: 0x" << std::hex << tmp << std::dec << std::endl;
+			VM_INSTANCE()->SetRegister(arguments[0], tmp);
+			VM_INSTANCE()->SetRegister(REG_ESP, esp + 4);
+		}
 		break;
 	default:
 		VM_INSTANCE()->GetLogger() << "Cannot pop to non-register value" << std::endl;

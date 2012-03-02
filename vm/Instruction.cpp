@@ -153,7 +153,7 @@ unsigned int Instruction::LoadOneArg(unsigned int argNum, char argCodes, char* e
 	case SC_REG:
 		if(argCodes != (SC_REG << 4 | SC_REG)) {
 			length = 1;
-			memcpy(&tmpArg, eip, 4);
+			memcpy(&tmpArg, eip, 1);
 			arguments[argNum] = tmpArg;
 		} else {
 			length = argNum;
@@ -207,6 +207,8 @@ void Instruction::ResolveValue(unsigned int arg)
 	if(arg < 0 || arg > 1)
 		return;
 
+	char* src = VM_INSTANCE()->GetMemory(arguments[arg]);
+
 	switch(subcode[arg]) {
 	case SC_REG:
 		arguments[arg] = VM_INSTANCE()->GetRegister(arguments[arg]);
@@ -219,8 +221,8 @@ void Instruction::ResolveValue(unsigned int arg)
 	case SC_EBX_M_CONST:
 	case SC_EBX_P_EAX:
 	case SC_EBX_M_EAX:
-		if(VM_INSTANCE()->ValidAddress((char*)arguments[arg]))
-			arguments[arg] = VM_INSTANCE()->Memory[arguments[arg]];
+		if(src)
+			memcpy(&arguments[arg], src, 4);
 		break;
 
 	}

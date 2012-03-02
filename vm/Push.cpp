@@ -11,10 +11,13 @@ Push::Push(char* eip)
 void Push::Execute()
 {
 	ResolveValue(0);
-
+	VM_INSTANCE()->GetLogger() << "Pushing value: " << arguments[0] << std::endl;
 	unsigned int esp = VM_INSTANCE()->GetRegister(REG_ESP);
-	memcpy(&VM_INSTANCE()->Memory[esp], &arguments[0], 4);
 	esp -= 4;
-	VM_INSTANCE()->SetRegister(REG_ESP, esp);
+	char* dst = VM_INSTANCE()->GetMemory(esp);
+	if(dst) {
+		memcpy(dst, &arguments[0], 4);
+		VM_INSTANCE()->SetRegister(REG_ESP, esp);
+	}
 }
 

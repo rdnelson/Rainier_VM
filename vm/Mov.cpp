@@ -13,6 +13,9 @@ Mov::Mov(char* eip) : mCopySize(4)
 void Mov::Execute()
 {
 	int bitCheck = 0;
+	char* dst = 0;
+
+	VM_INSTANCE()->GetLogger() << "Executing Mov: arg1=" << arguments[0] << "arg2=" << arguments[1] << std::endl;
 
 	//produce 0xff in each copyable byte
 	for(unsigned int i = 0; i < mCopySize && i < sizeof(int); i++)
@@ -35,10 +38,11 @@ void Mov::Execute()
 	case SC_EBX_P_CONST:
 	case SC_EBX_M_CONST:
 		//ensure it's a valid address before copy
-		if(VM_INSTANCE()->ValidAddress((char*)arguments[0])) {
+		dst = VM_INSTANCE()->GetMemory(arguments[0]);
+		if(dst) {
 			//copy the second argument into memory
 			arguments[1] &= bitCheck;
-			memcpy(&VM_INSTANCE()->Memory[arguments[0]], &arguments[1], mCopySize);
+			memcpy(dst, &arguments[1], mCopySize);
 		} else {
 			VM_INSTANCE()->GetLogger() << "Invalid Address: 0x" << std::hex << arguments[0] << " at EIP: 0x" << VM_INSTANCE()->GetRegister(REG_EIP) << std::dec << std::endl;
 		}

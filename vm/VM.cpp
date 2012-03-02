@@ -42,8 +42,11 @@ void VM::SetOptions(Options* opts)
 {
 	mOpts = opts;
 	mReady = opts->IsValid();
-
+	delete Memory;
 	Memory = new char[mOpts->GetMemSize()];
+	if(Memory == NULL)
+		mReady = false;
+
 	log << "Set VM Options." << std::endl;
 }
 
@@ -68,6 +71,14 @@ bool VM::ValidAddress(char* add)
 			return true;
 
 	return false;
+}
+
+char* VM::GetMemory(unsigned int add)
+{
+	if(add < GetMemSize())
+		return &Memory[add];
+
+	return 0;
 }
 
 unsigned int VM::GetRegister(unsigned int reg)
@@ -126,6 +137,11 @@ void VM::Start()
 void VM::Execute(RNPE_Header *header)
 {
 	memset(&registers, 0, sizeof(registers)); //Clear all the registers
+	ESP = mOpts->GetMemSize() - 1;
+	EBP = ESP;
+	unsigned int v;
+	memcpy(&v, Memory, 4);
+	std::cerr << "First 4 bytes of memory: " << std::hex << v << std::dec << std::endl;
 	if(header)
 		EIP = header->entry_pos; //it's either initialized or zeroed out
 
@@ -150,6 +166,11 @@ void VM::Execute(RNPE_Header *header)
 		EIP += curInst->GetEipOffset();
 
 		curInst->Execute();
+		if(mOpts->IsStepping()) {
+			dump();
+			getchar();
+		}
+
 
 	}
 
