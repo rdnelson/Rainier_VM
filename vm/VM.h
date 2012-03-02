@@ -45,7 +45,6 @@ public:
 	void Start();
 
 	unsigned int GetMemSize() { return mOpts->GetMemSize(); }
-	bool ValidAddress(char* add);
 
 	unsigned int GetRegister(unsigned int reg);
 	void SetRegister(unsigned int reg, unsigned int val);
@@ -60,6 +59,8 @@ public:
 	char* GetMemory(unsigned int add);
 
 private:
+
+	bool ValidAddress(char* add);
 
 	//RAM
 	char* Memory; //Buffer for entire VM

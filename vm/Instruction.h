@@ -3,7 +3,7 @@
 
 class Instruction {
 public:
-	static Instruction* ReadInstruction(char*);
+	static Instruction* ReadInstruction(unsigned int);
 
 	virtual bool IsValid() { return mValid; } //if instruction is capable of being run
 	virtual int GetError() { return mErr; } //if not valid, return specific error

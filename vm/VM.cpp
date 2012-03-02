@@ -149,7 +149,7 @@ void VM::Execute(RNPE_Header *header)
 
 	for(EVER) {
 		log << "EIP: 0x" << std::hex << EIP << std::dec << std::endl;
-		curInst = Instruction::ReadInstruction(&Memory[EIP]);
+		curInst = Instruction::ReadInstruction(EIP);
 
 		if(!curInst) {
 			log << "Instruction failed to be created" << std::endl;

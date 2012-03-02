@@ -6,95 +6,97 @@
 
 #include <cstring>
 
-Instruction* Instruction::ReadInstruction(char* eip)
+Instruction* Instruction::ReadInstruction(unsigned int eip)
 {
-	if(!VM_INSTANCE()->ValidAddress(eip))
+	char* eipMem = VM_INSTANCE()->GetMemory(eip);
+
+	if(!eipMem)
 		return 0;
 
-	char Opcode = *eip;
+	char Opcode = *eipMem;
 
 	VM_INSTANCE()->GetLogger() << "Opcode is: 0x" << std::hex << Opcode << std::dec << std::endl;
 	switch(Opcode){
 	case NOP_OP:
-		return new Nop(eip);
+		return new Nop(eipMem);
 		break;
 	case MOV_OP:
-		return new Mov(eip);
+		return new Mov(eipMem);
 		break;
 	case ADD_OP:
-		return new Add(eip);
+		return new Add(eipMem);
 		break;
 	case SUB_OP:
-		return new Sub(eip);
+		return new Sub(eipMem);
 		break;
 	case MUL_OP:
-		return new Mul(eip);
+		return new Mul(eipMem);
 		break;
 	case DIV_OP:
-		return new Div(eip);
+		return new Div(eipMem);
 		break;
 	case SHR_OP:
-		return new Shr(eip);
+		return new Shr(eipMem);
 		break;
 	case SHL_OP:
-		return new Shl(eip);
+		return new Shl(eipMem);
 		break;
 	case PUSH_OP:
-		return new Push(eip);
+		return new Push(eipMem);
 		break;
 	case POP_OP:
-		return new Pop(eip);
+		return new Pop(eipMem);
 		break;
 	case JMP_OP:
-		return new Jmp(eip);
+		return new Jmp(eipMem);
 		break;
 	case TEST_OP:
-		return new Test(eip);
+		return new Test(eipMem);
 		break;
 	case AND_OP:
-		return new And(eip);
+		return new And(eipMem);
 		break;
 	case OR_OP:
-		return new Or(eip);
+		return new Or(eipMem);
 		break;
 	case XOR_OP:
-		return new Xor(eip);
+		return new Xor(eipMem);
 		break;
 	case NOT_OP:
-		return new Not(eip);
+		return new Not(eipMem);
 		break;
 	case LOOP_OP:
-		return new Loop(eip);
+		return new Loop(eipMem);
 		break;
 	case JE_OP:
-		return new Je(eip);
+		return new Je(eipMem);
 		break;
 	case JNE_OP:
-		return new Jne(eip);
+		return new Jne(eipMem);
 		break;
 	case JGT_OP:
-		return new Jgt(eip);
+		return new Jgt(eipMem);
 		break;
 	case JGE_OP:
-		return new Jge(eip);
+		return new Jge(eipMem);
 		break;
 	case JLT_OP:
-		return new Jlt(eip);
+		return new Jlt(eipMem);
 		break;
 	case JLE_OP:
-		return new Jle(eip);
+		return new Jle(eipMem);
 		break;
 	case SYSCALL_OP:
-		return new Sys(eip);
+		return new Sys(eipMem);
 		break;
 	case MOVB_OP:
-		return new Movb(eip);
+		return new Movb(eipMem);
 		break;
 	case CALL_OP:
-		return new Call(eip);
+		return new Call(eipMem);
 		break;
 	case RET_OP:
-		return new Ret(eip);
+		return new Ret(eipMem);
 		break;
 	}
 	return 0;
