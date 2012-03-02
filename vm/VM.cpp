@@ -30,6 +30,10 @@ VM::VM(Options *opts) : mOpts(opts) {
 	//64k ought to be enough for anyone!
 		Memory = new char[mOpts->GetMemSize()]; //64k
 	}
+	if(mOpts->IsVerbose())
+		log.Enable();
+	else
+		log.Disable();
 
 	log << "VM created. IsReady: " << mReady << std::endl;
 }
@@ -46,6 +50,10 @@ void VM::SetOptions(Options* opts)
 	Memory = new char[mOpts->GetMemSize()];
 	if(Memory == NULL)
 		mReady = false;
+	if(mOpts->IsVerbose())
+		log.Enable();
+	else
+		log.Disable();
 
 	log << "Set VM Options." << std::endl;
 }
@@ -141,7 +149,6 @@ void VM::Execute(RNPE_Header *header)
 	EBP = ESP;
 	unsigned int v;
 	memcpy(&v, Memory, 4);
-	std::cerr << "First 4 bytes of memory: " << std::hex << v << std::dec << std::endl;
 	if(header)
 		EIP = header->entry_pos; //it's either initialized or zeroed out
 
