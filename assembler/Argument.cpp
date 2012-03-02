@@ -253,7 +253,13 @@ std::string Argument::ToBinary()
 
 	if(HasConstant()) {
 		char val[4];
-		memcpy(val, &mVal, 4);
+		if(mType == SC_CONST_ADD) {
+			int tmpVal = mSubArguments[0]->GetVal();
+			memcpy(val, &tmpVal, 4);
+		} else {
+			memcpy(val, &mVal, 4);
+		}
+
 		retval.append(val, 4);
 	}
 
