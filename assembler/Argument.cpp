@@ -37,7 +37,6 @@ void Argument::Init()
 		delete mSubArguments[i];
 	mSubArguments.clear();
 
-	//first parse it into standard form (lcase, no whitespace)
 
 	if (mText == "")
 		return;

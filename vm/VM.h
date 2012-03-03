@@ -59,6 +59,8 @@ public:
 	char* GetMemory(unsigned int add);
 
 private:
+	void Execute(RNPE_Header* header);
+
 
 	bool ValidAddress(char* add);
 
