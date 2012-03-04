@@ -26,6 +26,7 @@ Logger& operator <<(Logger& o, const char* x);
 Logger& operator <<(Logger& o, const std::string& x);
 Logger& operator <<(Logger& o, float x);
 Logger& operator <<(Logger& o, double x);
+Logger& operator <<(Logger& o, void* x);
 
 Logger& operator <<(Logger& o, std::ostream& (*x)(std::ostream&));
 Logger& operator <<(Logger& o, std::ios& (*x)(std::ios&));

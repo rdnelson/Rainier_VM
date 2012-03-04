@@ -73,7 +73,7 @@ void VM::dump()
 
 bool VM::ValidAddress(char* add)
 {
-	log << "Testing if " << std::hex << (int)add << " is a valid address in array " << (int)Memory << std::dec << std::endl;
+	log << "Testing if " << std::hex << (void*)add << " is a valid address in array " << (void*)Memory << std::dec << std::endl;
 	if(add >= Memory)
 		if(add < Memory + GetMemSize())
 			return true;

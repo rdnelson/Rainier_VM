@@ -106,11 +106,11 @@ Instruction::Instruction() : mEipOffset(0), mValid(true), mErr(0)
 {
 }
 
-unsigned int Instruction::LoadArgs(unsigned int numArgs, char* eip)
+unsigned long Instruction::LoadArgs(unsigned int numArgs, char* eip)
 {
 	char argCodes;
 
-	unsigned int tmpEip = (int)eip;
+	unsigned long tmpEip = (unsigned long)eip;
 
 	eip++; //eliminate opcode
 
@@ -130,7 +130,7 @@ unsigned int Instruction::LoadArgs(unsigned int numArgs, char* eip)
 		}
 		break;
 	}
-	return (int)eip - tmpEip;
+	return (unsigned long)eip - tmpEip;
 
 }
 

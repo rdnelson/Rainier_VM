@@ -42,6 +42,13 @@ Logger& operator <<(Logger& o, double x)
 	}
 	return o;
 }
+Logger& operator <<(Logger& o, void* x)
+{
+	if(o.IsEnabled()) {
+		o.GetStream() << x;
+	}
+	return o;
+}
 
 Logger& operator <<(Logger& o, std::ostream& (*x)(std::ostream&))
 {

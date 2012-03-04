@@ -20,7 +20,7 @@ protected:
 	bool mValid;
 	int mErr;
 
-	unsigned int LoadArgs(unsigned int argNum, char* eip);
+	unsigned long LoadArgs(unsigned int argNum, char* eip);
 	unsigned int LoadOneArg(unsigned int argNum, char argCode, char* eip);
 
 	void ResolveValue(unsigned int arg);
