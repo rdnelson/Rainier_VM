@@ -39,7 +39,7 @@ functions: func_decl				{ printf("Functions!\n"); }
 		;
 
 statement: expr SEMICOLON	{ printf("Expression Statement: %s\n", $1); }
-		| var_decl			{ printf("Variable declaration: %s\n", $1); }
+		| var_decl SEMICOLON		{ printf("Variable declaration: %s\n", $1); }
 		| if_struct			{ printf("If structure: %s\n", $1); }
 		| while_loop		{ printf("While loop: %s\n", $1); }
 		| do_loop			{ printf("Do loop: %s\n", $1); }
@@ -51,16 +51,18 @@ block:	LBRACE statements RBRACE
 		| LBRACE RBRACE				{ printf("Empty block\n"); }
 		;
 
-var_decl: base_type ident SEMICOLON
-		| VOID STAR ident SEMICOLON
-		| base_type ident EQUALS expr SEMICOLON
-		| VOID STAR ident EQUALS expr SEMICOLON
+var_decl: base_type ident
+		| VOID STAR ident
+		| base_type ident EQUALS expr
+		| VOID STAR ident EQUALS expr
 		;
 
 func_decl: base_type ident LPAREN func_args RPAREN block 
 		| VOID STAR ident LPAREN func_args RPAREN block
+		| VOID ident LPAREN func_args RPAREN block
 		| base_type ident LPAREN RPAREN block				{ printf("No Argument Function\n"); }
 		| VOID STAR ident LPAREN RPAREN block
+		| VOID ident LPAREN RPAREN block
 		;
 
 func_args: var_decl
