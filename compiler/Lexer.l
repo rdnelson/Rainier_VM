@@ -1,5 +1,6 @@
 %top{
 #include "Parser.tab.h"
+extern "C" int yywrap() { }
 }
 
 DIGIT			[0-9]

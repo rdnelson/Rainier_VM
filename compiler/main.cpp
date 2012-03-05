@@ -1,11 +1,12 @@
 #include <iostream>
 #include <cstring>
 #include <fstream>
-#include "Header.h"
+
+extern int yyparse();
 
 const char MAGIC_CONST[] = "RNpe";
 
-int main()
+/*int main()
 {
 	std::cout << sizeof(RNPE_Header) << std::endl;
 	RNPE_Header head;
@@ -18,5 +19,11 @@ int main()
 	std::ofstream fout("test.rnpe");
 	fout.write((char*)&head, sizeof(head));
 	fout.close();
+	return 0;
+}*/
+
+int main()
+{
+	yyparse();
 	return 0;
 }

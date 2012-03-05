@@ -4,7 +4,6 @@
 	extern int yylex();
 	void yyerror(const char *s) { printf("ERROR: %s\n", s); }
 	void yywrap() {}
-	int main() { yyparse(); return 0; }
 %}
 
 %token IDENTIFIER INTVAL LONGVAL FLOATVAL STRING UNSIGNED
